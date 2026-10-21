@@ -5,3 +5,8 @@ __pycache__/
 env/
 .idea/
 .vscode/
+
+# AI context and handoff documents (local only, do not commit)
+CURRENT_STATE.md
+PENDING_TASKS.md
+
