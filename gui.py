@@ -102,6 +102,20 @@ class NeuronButton(QPushButton):
         self.setText(text)
         self.setStyleSheet(style)
 
+        is_operational = info.get("is_operational", state != NeuronState.FAULTY)
+        processed = info.get("processed_requests_count", 0)
+        unprocessed = info.get("unprocessed_requests_count", 0)
+        rem_time = info.get("remaining_time", ticks_left)
+
+        self.setToolTip(
+            f"Адрес: {addr}\n"
+            f"Состояние: {'Исправен' if is_operational else 'Сбой'}\n"
+            f"Статус: {state.value}\n"
+            f"Оставшееся время: {rem_time} т.\n"
+            f"Обработано этим узлом: {processed}\n"
+            f"Не обработано (отказов): {unprocessed}"
+        )
+
     @staticmethod
     def _hex_to_rgba(hex_code: str, alpha: float) -> str:
         hex_code = hex_code.lstrip("#")
