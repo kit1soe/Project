@@ -18,6 +18,7 @@ import unittest
 from models import (
     BaseArchitecture, ToroidalGridArchitecture, RhomboidArchitecture,
     Star8Architecture, HoneycombPipelineArchitecture, SymmetricStar8Architecture,
+    Funnel8Architecture, ChordalFunnel8Architecture,
     SimulationController, SimulationEngine,
     NeuronState, RequestStatus, PlayState, Request, Neuron
 )
@@ -346,6 +347,32 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(ctrl.state, PlayState.STOPPED)
         self.assertEqual(arch.current_tick, 0)
 
+    def test_funnel8_architecture_fault_tolerance(self):
+        """
+        Проверка Funnel8Architecture: 6 заявок при сбое на слое 1.
+        Благодаря резервным узлам (3 и 7) все 6 заявок успешно завершают обслуживание (0 отказов).
+        """
+        arch = Funnel8Architecture(q_required=4, total_initial_requests=6)
+        arch.toggle_neuron_fault(1, 0)
+        arch.fast_forward_to_end()
+        
+        self.assertEqual(arch.rejected_count, 0)
+        self.assertEqual(arch.completed_count, 6)
+        self.assertEqual(len(arch.all_requests), 6)
+
+    def test_chordal_funnel8_architecture_fault_tolerance(self):
+        """
+        Проверка ChordalFunnel8Architecture: 6 заявок при сбое нейрона [1, 0].
+        Хордовые и смежные связи обеспечивают 100% прохождение всех 6 заявок.
+        """
+        arch = ChordalFunnel8Architecture(q_required=4, total_initial_requests=6)
+        arch.toggle_neuron_fault(1, 0)
+        arch.fast_forward_to_end()
+
+        self.assertEqual(arch.rejected_count, 0)
+        self.assertEqual(arch.completed_count, 6)
+        self.assertEqual(len(arch.all_requests), 6)
+
     def test_backwards_compatibility_simulation_engine(self):
         """Проверка, что класс SimulationEngine доступен и работает как наследник."""
         engine = SimulationEngine(rows=6, cols=4, q_required=4, total_initial_requests=4)
@@ -371,7 +398,7 @@ class TestSimulation(unittest.TestCase):
 
         win = MainWindow()
         self.assertIsNotNone(win)
-        self.assertEqual(win.combo_topo.count(), 6)
+        self.assertEqual(win.combo_topo.count(), 8)
 
         # 1. Переключение на Ромб
         win.combo_topo.setCurrentIndex(1)
@@ -406,7 +433,19 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(info_sym["type"], "sym_star8")
         win.ctrl.step_forward()
 
-        # 6. Возврат на Тороид 6x6
+        # 6. Переключение на Funnel-8
+        win.combo_topo.setCurrentIndex(6)
+        info_f8 = win.ctrl.architecture.get_topology_info()
+        self.assertEqual(info_f8["type"], "funnel8")
+        win.ctrl.step_forward()
+
+        # 7. Переключение на Chordal-Funnel-8
+        win.combo_topo.setCurrentIndex(7)
+        info_cf8 = win.ctrl.architecture.get_topology_info()
+        self.assertEqual(info_cf8["type"], "chordal_funnel8")
+        win.ctrl.step_forward()
+
+        # 8. Возврат на Тороид 6x6
         win.combo_topo.setCurrentIndex(0)
         self.assertEqual(win.combo_topo.itemText(0), "Тороидальная матрица 6x6")
         self.assertEqual(win.ctrl.architecture.get_topology_info()["type"], "toroidal_grid")

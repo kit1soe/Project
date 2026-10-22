@@ -22,6 +22,7 @@ from models import (
     NeuronState, RequestStatus, PlayState,
     BaseArchitecture, ToroidalGridArchitecture, RhomboidArchitecture, Star8Architecture,
     HoneycombPipelineArchitecture, SymmetricStar8Architecture,
+    Funnel8Architecture, ChordalFunnel8Architecture,
     SimulationController
 )
 
@@ -193,8 +194,8 @@ class TopologyCanvasWidget(QWidget):
         if self.topo_type in ("star8", "sym_star8"):
             btn_w = min(56, max(44, int(avail_w * 0.065)))
             btn_h = min(36, max(28, int(avail_h * 0.050)))
-        elif self.topo_type == "honeycomb":
-            btn_w = min(68, max(48, int(avail_w * 0.09)))
+        elif self.topo_type in ("honeycomb", "funnel8", "chordal_funnel8"):
+            btn_w = min(68, max(46, int(avail_w * 0.085)))
             btn_h = min(38, max(28, int(avail_h * 0.055)))
         else:
             btn_w = min(76, max(54, int(avail_w * 0.11)))
@@ -341,6 +342,8 @@ class MainWindow(QMainWindow):
         self.combo_topo.addItem("Восьмиконечная звезда (Star-8, 6 входов)", "star8_6in")
         self.combo_topo.addItem("Гексагональная сота (Honeycomb, deg=3)", "honeycomb")
         self.combo_topo.addItem("Симметричная звезда C8 (Sym-Star8, deg=3)", "sym_star8")
+        self.combo_topo.addItem("Расширенная воронка 6->8 (W=[6,8,8,8,8], deg=3)", "funnel8")
+        self.combo_topo.addItem("Хордовая воронка 6->8 (deg=3, хорда +4)", "chordal_funnel8")
         self.combo_topo.currentIndexChanged.connect(self._on_topo_changed)
         ctrl_bar.addWidget(self.combo_topo)
 
@@ -597,6 +600,16 @@ class MainWindow(QMainWindow):
             self.arch = SymmetricStar8Architecture(
                 ray_depth=4,
                 num_inputs=6,
+                q_required=self.q_required,
+                total_initial_requests=self.total_requests
+            )
+        elif key == "funnel8":
+            self.arch = Funnel8Architecture(
+                q_required=self.q_required,
+                total_initial_requests=self.total_requests
+            )
+        elif key == "chordal_funnel8":
+            self.arch = ChordalFunnel8Architecture(
                 q_required=self.q_required,
                 total_initial_requests=self.total_requests
             )
