@@ -105,6 +105,17 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(req.path[-1], (3, 0))
         self.assertTrue(req.is_pipeline_built())
 
+    def test_torus_6x6_default(self):
+        """Проверка дефолтной матрицы 6x6 (36 нейронов, 6 входов)."""
+        torus = ToroidalGridArchitecture()
+        self.assertEqual(torus.rows, 6)
+        self.assertEqual(torus.cols, 6)
+        self.assertEqual(len(torus.all_neurons()), 36)
+        self.assertEqual(torus.input_columns_count, 6)
+        info = torus.get_topology_info()
+        self.assertEqual(len(info["nodes"]), 36)
+        self.assertEqual(info["type"], "toroidal_grid")
+
     def test_rhomboid_architecture(self):
         """
         Проверка ромбовидной архитектуры (RhomboidArchitecture):
@@ -395,9 +406,11 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(info_sym["type"], "sym_star8")
         win.ctrl.step_forward()
 
-        # 6. Возврат на Тороид
+        # 6. Возврат на Тороид 6x6
         win.combo_topo.setCurrentIndex(0)
+        self.assertEqual(win.combo_topo.itemText(0), "Тороидальная матрица 6x6")
         self.assertEqual(win.ctrl.architecture.get_topology_info()["type"], "toroidal_grid")
+        self.assertEqual(win.ctrl.architecture.cols, 6)
         win.ctrl.step_forward()
 
 

@@ -65,86 +65,39 @@ class NeuronButton(QPushButton):
 
         if state == NeuronState.FAULTY:
             text = f"{addr_str}\nСБОЙ"
-            style = """
-                QPushButton {
-                    background-color: #381b1d;
-                    color: #ef5350;
-                    border: 1px solid #c62828;
-                    border-radius: 5px;
-                    padding: 1px 1px;
-                    font-size: 7.5pt;
-                    font-weight: bold;
-                }
-                QPushButton:hover {
-                    background-color: #4a2225;
-                }
-            """
+            bg, fg, border, hover = "#381b1d", "#ef5350", "1px solid #c62828", "background-color: #4a2225;"
         elif state == NeuronState.BUSY:
-            color = req_color or "#00BCD4"
+            c = req_color or "#00BCD4"
             stage_str = f"·q{q_stage}" if q_stage > 0 else ""
             text = f"{addr_str}\n#{req_id}{stage_str} (T:{ticks_left})"
-            style = f"""
-                QPushButton {{
-                    background-color: {self._hex_to_rgba(color, 0.32)};
-                    color: #ffffff;
-                    border: 2px solid {color};
-                    border-radius: 5px;
-                    padding: 1px 1px;
-                    font-size: 7.5pt;
-                    font-weight: bold;
-                }}
-            """
+            bg, fg, border, hover = self._hex_to_rgba(c, 0.32), "#ffffff", f"2px solid {c}", ""
         elif state == NeuronState.EXHAUSTED or has_computed:
-            color = trail_color or "#546e7a"
+            c = trail_color or "#546e7a"
             tag = f"Готов #{trail_req_id}" if trail_req_id else "Готов"
             text = f"{addr_str}\n{tag}"
-            style = f"""
-                QPushButton {{
-                    background-color: {self._hex_to_rgba(color, 0.14)};
-                    color: #90a4ae;
-                    border: 1px solid {self._hex_to_rgba(color, 0.45)};
-                    border-radius: 5px;
-                    padding: 1px 1px;
-                    font-size: 7.5pt;
-                }}
-            """
+            bg, fg, border, hover = self._hex_to_rgba(c, 0.14), "#90a4ae", f"1px solid {self._hex_to_rgba(c, 0.45)}", ""
+        elif trail_req_id:
+            c = trail_color or "#546e7a"
+            text = f"{addr_str}\nСлед #{trail_req_id}"
+            bg, fg, border, hover = self._hex_to_rgba(c, 0.08), "#a0a0a0", f"1px solid {self._hex_to_rgba(c, 0.25)}", f"background-color: {self._hex_to_rgba(c, 0.16)};"
         else:
-            if trail_req_id:
-                color = trail_color or "#546e7a"
-                text = f"{addr_str}\nСлед #{trail_req_id}"
-                style = f"""
-                    QPushButton {{
-                        background-color: {self._hex_to_rgba(color, 0.08)};
-                        color: #a0a0a0;
-                        border: 1px solid {self._hex_to_rgba(color, 0.25)};
-                        border-radius: 5px;
-                        padding: 1px 1px;
-                        font-size: 7.5pt;
-                    }}
-                    QPushButton:hover {{
-                        background-color: {self._hex_to_rgba(color, 0.16)};
-                    }}
-                """
-            else:
-                text = f"{addr_str}\nСвободен"
-                style = """
-                    QPushButton {
-                        background-color: #21252b;
-                        color: #888888;
-                        border: 1px solid #323842;
-                        border-radius: 5px;
-                        padding: 1px 1px;
-                        font-size: 7.5pt;
-                    }
-                    QPushButton:hover {
-                        background-color: #2c313a;
-                        border-color: #525c6a;
-                        color: #dcdcdc;
-                    }
-                """
+            text = f"{addr_str}\nСвободен"
+            bg, fg, border, hover = "#21252b", "#888888", "1px solid #323842", "background-color: #2c313a; border-color: #525c6a; color: #dcdcdc;"
 
+        hover_rule = f"QPushButton:hover {{ {hover} }}" if hover else ""
         self.setText(text)
-        self.setStyleSheet(style)
+        self.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {bg};
+                color: {fg};
+                border: {border};
+                border-radius: 5px;
+                padding: 1px 1px;
+                font-size: 7.5pt;
+                font-weight: bold;
+            }}
+            {hover_rule}
+        """)
 
         is_operational = info.get("is_operational", state != NeuronState.FAULTY)
         processed = info.get("processed_requests_count", 0)
@@ -346,12 +299,12 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(980, 580)
 
         self.q_required: int = 4
-        self.total_requests: int = 4
+        self.total_requests: int = 6
 
-        # Базовая архитектура по умолчанию: Тороидальная матрица 6x4
+        # Базовая архитектура по умолчанию: Тороидальная матрица 6x6
         self.arch: BaseArchitecture = ToroidalGridArchitecture(
             rows=6,
-            cols=4,
+            cols=6,
             q_required=self.q_required,
             total_initial_requests=self.total_requests
         )
@@ -382,7 +335,7 @@ class MainWindow(QMainWindow):
         # Свитчер топологий
         ctrl_bar.addWidget(QLabel("Топология:"))
         self.combo_topo = QComboBox()
-        self.combo_topo.addItem("Тороидальная матрица 6x4", "torus")
+        self.combo_topo.addItem("Тороидальная матрица 6x6", "torus")
         self.combo_topo.addItem("Ромбовидная архитектура", "rhombus")
         self.combo_topo.addItem("Восьмиконечная звезда (Star-8, 4 входа)", "star8_4in")
         self.combo_topo.addItem("Восьмиконечная звезда (Star-8, 6 входов)", "star8_6in")
@@ -610,7 +563,7 @@ class MainWindow(QMainWindow):
 
         if key == "torus":
             self.arch = ToroidalGridArchitecture(
-                rows=6, cols=4,
+                rows=6, cols=6,
                 q_required=self.q_required,
                 total_initial_requests=self.total_requests
             )
