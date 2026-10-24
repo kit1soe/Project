@@ -22,9 +22,9 @@ from models import (
     NeuronState, RequestStatus, PlayState,
     BaseArchitecture, ToroidalGridArchitecture, RhomboidArchitecture, Star8Architecture,
     HoneycombPipelineArchitecture, SymmetricStar8Architecture,
-    Funnel8Architecture, ChordalFunnel8Architecture,
-    SimulationController
+    Funnel8Architecture, ChordalFunnel8Architecture
 )
+from controller import SimulationController
 
 
 class NeuronButton(QPushButton):

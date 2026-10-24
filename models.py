@@ -534,7 +534,7 @@ class BaseArchitecture(abc.ABC):
 class ToroidalGridArchitecture(BaseArchitecture):
     """
     Тороидальная матричная архитектура 6x6.
-    Закольцована по горизонтали и вертикали.
+    Закольцована только по горизонтали (по вертикали закольцовывание отсутствует).
     """
 
     def __init__(
@@ -566,7 +566,9 @@ class ToroidalGridArchitecture(BaseArchitecture):
         self.next_input_idx = 0
 
     def get_candidate_neighbors(self, neuron: Neuron, request: Request) -> List[Tuple[Neuron, str]]:
-        next_row = (neuron.row + 1) % self.rows
+        if neuron.row >= self.rows - 1:
+            return []
+        next_row = neuron.row + 1
         cur_col = neuron.col
         orig_col = request.origin_col
 
@@ -617,8 +619,8 @@ class ToroidalGridArchitecture(BaseArchitecture):
                 })
 
         edges = []
-        for r in range(self.rows):
-            next_r = (r + 1) % self.rows
+        for r in range(self.rows - 1):
+            next_r = r + 1
             for c in range(self.cols):
                 edges.append({"from": (r, c), "to": (next_r, c), "type": "primary", "color": "#00bcd4"})
                 edges.append({"from": (r, c), "to": (next_r, (c - 1) % self.cols), "type": "lateral", "color": "#546e7a"})
@@ -1391,117 +1393,8 @@ class ChordalFunnel8Architecture(BaseArchitecture):
         }
 
 
-class SimulationController:
-    """MVC-контроллер симуляции."""
-
-    def __init__(self, architecture: BaseArchitecture, speed_ms: int = 400):
-        self.arch: BaseArchitecture = architecture
-        self.speed_ms: int = speed_ms
-        self.state: PlayState = PlayState.STOPPED
-        self.listeners: Dict[str, List[Callable]] = {
-            "tick": [],
-            "state_change": [],
-            "log": [],
-            "reset": []
-        }
-
-    @property
-    def current_tick(self) -> int:
-        return self.arch.current_tick
-
-    @property
-    def architecture(self) -> BaseArchitecture:
-        return self.arch
-
-    def subscribe(self, event: str, callback: Callable) -> None:
-        if event in self.listeners:
-            self.listeners[event].append(callback)
-
-    def notify(self, event: str, *args, **kwargs) -> None:
-        for cb in self.listeners.get(event, []):
-            try:
-                cb(*args, **kwargs)
-            except Exception as e:
-                print(f"Error in listener {cb}: {e}")
-
-    def set_architecture(self, new_arch: BaseArchitecture) -> None:
-        self.state = PlayState.STOPPED
-        self.arch = new_arch
-        self.notify("state_change", self.state)
-        self.notify("reset")
-
-    def play(self) -> None:
-        if self.arch.is_finished():
-            self.state = PlayState.FINISHED
-        else:
-            self.state = PlayState.PLAYING
-        self.notify("state_change", self.state)
-
-    def pause(self) -> None:
-        self.state = PlayState.PAUSED
-        self.notify("state_change", self.state)
-
-    def toggle_play(self) -> None:
-        if self.state == PlayState.PLAYING:
-            self.pause()
-        else:
-            self.play()
-
-    def step_forward(self) -> None:
-        self.arch.step_forward()
-        if self.arch.is_finished() and self.state == PlayState.PLAYING:
-            self.state = PlayState.FINISHED
-            self.notify("state_change", self.state)
-        self.notify("tick", self.arch.current_tick)
-
-    def step_backward(self) -> None:
-        self.pause()
-        self.arch.step_backward()
-        self.notify("tick", self.arch.current_tick)
-
-    def fast_forward(self, max_ticks: int = 500) -> None:
-        self.arch.fast_forward_to_end(max_ticks=max_ticks)
-        self.state = PlayState.FINISHED
-        self.notify("state_change", self.state)
-        self.notify("tick", self.arch.current_tick)
-
-    def go_to_tick(self, tick_idx: int) -> None:
-        self.pause()
-        self.arch.go_to_history_tick(tick_idx)
-        self.notify("tick", self.arch.current_tick)
-
-    def reset(self) -> None:
-        self.state = PlayState.STOPPED
-        self.arch.reset()
-        self.notify("state_change", self.state)
-        self.notify("reset")
-
-    def toggle_fault(self, row: int, col: int) -> bool:
-        res = self.arch.toggle_neuron_fault(row, col)
-        self.notify("tick", self.arch.current_tick)
-        return res
-
-    def set_speed(self, speed_ms: int) -> None:
-        self.speed_ms = speed_ms
-
-    def get_kpi(self) -> Dict[str, Any]:
-        total = self.arch.total_generated
-        completed = self.arch.completed_count
-        rejected = self.arch.rejected_count
-        active = sum(1 for r in self.arch.all_requests if r.status == RequestStatus.IN_PROGRESS)
-        fail_rate = (rejected / total * 100.0) if total > 0 else 0.0
-        faults_count = sum(1 for n in self.arch.all_neurons() if not n.is_operational)
-        total_neurons = len(self.arch.all_neurons())
-
-        return {
-            "total": total,
-            "completed": completed,
-            "rejected": rejected,
-            "active": active,
-            "fail_rate": fail_rate,
-            "faults_count": faults_count,
-            "total_neurons": total_neurons
-        }
+# Выделенный MVC-контроллер вынесен в отдельный файл controller.py согласно паттерну MVC
+from controller import SimulationController
 
 
 class SimulationEngine(ToroidalGridArchitecture):

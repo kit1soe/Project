@@ -19,9 +19,10 @@ from models import (
     BaseArchitecture, ToroidalGridArchitecture, RhomboidArchitecture,
     Star8Architecture, HoneycombPipelineArchitecture, SymmetricStar8Architecture,
     Funnel8Architecture, ChordalFunnel8Architecture,
-    SimulationController, SimulationEngine,
+    SimulationEngine,
     NeuronState, RequestStatus, PlayState, Request, Neuron
 )
+from controller import SimulationController
 
 
 class TestSimulation(unittest.TestCase):
@@ -116,6 +117,47 @@ class TestSimulation(unittest.TestCase):
         info = torus.get_topology_info()
         self.assertEqual(len(info["nodes"]), 36)
         self.assertEqual(info["type"], "toroidal_grid")
+
+    def test_torus_wrap_only_horizontal(self):
+        """
+        Проверка, что ToroidalGridArchitecture закольцована ТОЛЬКО по горизонтали,
+        а по вертикали закольцовывание отсутствует (с последнего слоя нет переходов на нулевой).
+        """
+        torus = ToroidalGridArchitecture(rows=6, cols=6)
+        req = Request(request_id=1, q_required=4, input_neuron_index=(0, 0))
+
+        # Горизонтальное закольцовывание работает: из (0, 0) сосед слева - (1, 5)
+        n_top_left = torus.get_neuron((0, 0))
+        cands_top = torus.get_candidate_neighbors(n_top_left, req)
+        cand_addresses = [n.address for n, _ in cands_top]
+        self.assertIn((1, 0), cand_addresses)
+        self.assertIn((1, 5), cand_addresses)  # (0 - 1) % 6 == 5
+        self.assertIn((1, 1), cand_addresses)
+
+        # Вертикальное закольцовывание отсутствует: из последнего слоя (5, c) нет переходов на слой 0
+        n_bottom = torus.get_neuron((5, 0))
+        cands_bottom = torus.get_candidate_neighbors(n_bottom, req)
+        self.assertEqual(cands_bottom, [], "С последнего слоя не должно быть переходов на слой 0")
+
+        # Проверка ребер топологии: ни одно ребро не ведет с 5-го слоя на 0-й
+        info = torus.get_topology_info()
+        for edge in info["edges"]:
+            self.assertNotEqual(
+                (edge["from"][0], edge["to"][0]),
+                (5, 0),
+                "Ребро не должно закольцовываться с нижнего слоя на верхний"
+            )
+
+    def test_mvc_controller_separation(self):
+        """
+        Проверка, что SimulationController находится в отдельном модуле controller.py (MVC),
+        а также доступен через models.py для обратной совместимости.
+        """
+        import controller
+        import models
+        self.assertTrue(hasattr(controller, "SimulationController"))
+        self.assertTrue(hasattr(models, "SimulationController"))
+        self.assertIs(controller.SimulationController, models.SimulationController)
 
     def test_rhomboid_architecture(self):
         """
