@@ -495,5 +495,96 @@ class TestSimulation(unittest.TestCase):
         win.ctrl.step_forward()
 
 
+    def test_neuron_invulnerability_during_request_processing(self):
+        """
+        Проверка принципа неуязвимости ОИН:
+        Нейрон в процессе обработки заявки (BUSY) не может выйти из строя немедленно.
+        Сбой переходит в отложенный режим (pending_fault) и вступает в силу строго
+        после того, как заявка завершит обслуживание или уйдёт из системы по отказу.
+        """
+        arch = ToroidalGridArchitecture(rows=6, cols=6, q_required=4, total_initial_requests=1)
+        ctrl = SimulationController(arch)
+
+        # Такт 1: Заявка #1 входит в узел (0, 0)
+        ctrl.step_forward()
+        n00 = arch.get_neuron((0, 0))
+        self.assertEqual(n00.state, NeuronState.BUSY)
+        self.assertIsNotNone(n00.current_request)
+        req = arch.all_requests[0]
+        self.assertEqual(req.status, RequestStatus.IN_PROGRESS)
+
+        # Инжектируем сбой в занятый узел (0, 0)
+        is_active = arch.toggle_neuron_fault(0, 0)
+        self.assertTrue(is_active)
+        # Узел НЕ сбрасывает заявку и НЕ становится FAULTY немедленно!
+        self.assertEqual(n00.state, NeuronState.BUSY)
+        self.assertTrue(n00.pending_fault)
+        self.assertTrue(n00.is_operational)
+        self.assertEqual(req.status, RequestStatus.IN_PROGRESS)
+        self.assertEqual(arch.rejected_count, 0)
+
+        # Завершаем симуляцию
+        ctrl.fast_forward()
+        self.assertEqual(req.status, RequestStatus.COMPLETED)
+        self.assertEqual(arch.completed_count, 1)
+        self.assertEqual(arch.rejected_count, 0)
+
+        # После завершения обслуживания заявки узел (0, 0) обязан перейти в FAULTY
+        self.assertEqual(n00.state, NeuronState.FAULTY)
+        self.assertFalse(n00.is_operational)
+        self.assertFalse(n00.pending_fault)
+        self.assertFalse(n00.can_accept())
+
+    def test_neuron_invulnerability_cancellation(self):
+        """Проверка отмены отложенного сбоя при повторном клике по занятому узлу."""
+        arch = ToroidalGridArchitecture(rows=6, cols=6, q_required=4, total_initial_requests=1)
+        ctrl = SimulationController(arch)
+
+        ctrl.step_forward()
+        n00 = arch.get_neuron((0, 0))
+        self.assertEqual(n00.state, NeuronState.BUSY)
+
+        # Клик 1: планирование сбоя
+        arch.toggle_neuron_fault(0, 0)
+        self.assertTrue(n00.pending_fault)
+
+        # Клик 2: отмена отложенного сбоя
+        arch.toggle_neuron_fault(0, 0)
+        self.assertFalse(n00.pending_fault)
+        self.assertEqual(n00.state, NeuronState.BUSY)
+
+        ctrl.fast_forward()
+        # По завершении узел свободен и исправен
+        self.assertEqual(n00.state, NeuronState.FREE)
+        self.assertTrue(n00.is_operational)
+
+    def test_neuron_invulnerability_on_rejected_request(self):
+        """Проверка перехода в сбой после ухода заявки из системы по отказу."""
+        # Создаем узкую топологию, где неизбежен тупик на слое 1
+        arch = ToroidalGridArchitecture(rows=6, cols=6, q_required=4, total_initial_requests=1)
+        # Блокируем всех потенциальных кандидатов на слое 1
+        for c in range(6):
+            arch.toggle_neuron_fault(1, c)
+
+        ctrl = SimulationController(arch)
+        ctrl.step_forward()  # Заявка #1 входит в (0, 0)
+        n00 = arch.get_neuron((0, 0))
+        self.assertEqual(n00.state, NeuronState.BUSY)
+
+        # Планируем сбой на входном узле (0, 0)
+        arch.toggle_neuron_fault(0, 0)
+        self.assertTrue(n00.pending_fault)
+
+        # Следующий шаг: тупик на слое 1, заявка сбрасывается
+        ctrl.step_forward()
+        req = arch.all_requests[0]
+        self.assertEqual(req.status, RequestStatus.REJECTED)
+
+        # При сбросе заявки узел (0, 0) освобождается и переходит в FAULTY
+        self.assertEqual(n00.state, NeuronState.FAULTY)
+        self.assertFalse(n00.is_operational)
+        self.assertFalse(n00.pending_fault)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -58,6 +58,7 @@ class NeuronButton(QPushButton):
         trail_color = info.get("trail_color")
         trail_req_id = info.get("trail_request_id")
         has_computed: bool = info.get("has_computed", False)
+        pending_fault: bool = info.get("pending_fault", False)
         addr = info.get("address", self.node_label)
         if isinstance(addr, (tuple, list)) and len(addr) == 2:
             addr_str = f"[{addr[0]}, {addr[1]}]"
@@ -70,8 +71,12 @@ class NeuronButton(QPushButton):
         elif state == NeuronState.BUSY:
             c = req_color or "#00BCD4"
             stage_str = f"·q{q_stage}" if q_stage > 0 else ""
-            text = f"{addr_str}\n#{req_id}{stage_str} (T:{ticks_left})"
-            bg, fg, border, hover = self._hex_to_rgba(c, 0.32), "#ffffff", f"2px solid {c}", ""
+            if pending_fault:
+                text = f"{addr_str}\n#{req_id}{stage_str} (T:{ticks_left}) [СБОЙ]"
+                bg, fg, border, hover = self._hex_to_rgba(c, 0.32), "#ffffff", "2px dashed #ef5350", ""
+            else:
+                text = f"{addr_str}\n#{req_id}{stage_str} (T:{ticks_left})"
+                bg, fg, border, hover = self._hex_to_rgba(c, 0.32), "#ffffff", f"2px solid {c}", ""
         elif state == NeuronState.EXHAUSTED or has_computed:
             c = trail_color or "#546e7a"
             tag = f"Готов #{trail_req_id}" if trail_req_id else "Готов"

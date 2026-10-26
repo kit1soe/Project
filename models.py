@@ -116,6 +116,7 @@ class Neuron:
         self.col: int = col
         self.address: Tuple[int, int] = (row, col)
         self.is_operational: bool = True
+        self.pending_fault: bool = False
         self.state: NeuronState = NeuronState.FREE
         self.remaining_time: int = 0
         self.current_request: Optional[Request] = None
@@ -127,7 +128,7 @@ class Neuron:
         self.has_computed: bool = False
 
     def can_accept(self, single_use: bool = False) -> bool:
-        if not self.is_operational:
+        if not self.is_operational or self.pending_fault:
             return False
         if single_use and self.has_computed:
             return False
@@ -150,7 +151,11 @@ class Neuron:
         self.current_request = None
         self.has_computed = True
         self.processed_requests_count += 1
-        if self.state != NeuronState.FAULTY:
+        if self.pending_fault:
+            self.is_operational = False
+            self.state = NeuronState.FAULTY
+            self.pending_fault = False
+        elif self.state != NeuronState.FAULTY:
             self.state = NeuronState.EXHAUSTED if single_use else NeuronState.FREE
         self.remaining_time = 0
         self.q_stage = 0
@@ -158,7 +163,11 @@ class Neuron:
 
     def release_aborted(self) -> None:
         self.current_request = None
-        if self.state != NeuronState.FAULTY:
+        if self.pending_fault:
+            self.is_operational = False
+            self.state = NeuronState.FAULTY
+            self.pending_fault = False
+        elif self.state != NeuronState.FAULTY:
             self.state = NeuronState.FREE
         self.remaining_time = 0
         self.q_stage = 0
@@ -166,23 +175,31 @@ class Neuron:
     def record_unprocessed(self) -> None:
         self.unprocessed_requests_count += 1
 
-    def toggle_fault(self) -> Tuple[bool, Optional[Request]]:
-        dropped_req = None
+    def toggle_fault(self) -> Tuple[bool, str]:
+        """
+        Переключение сбоя с соблюдением принципа неуязвимости нейрона:
+        Если нейрон обрабатывает заявку (BUSY), он НЕ сбрасывает ее в отказ,
+        а переходит в состояние отложенного сбоя (pending_fault = True).
+        Сбой вступит в силу ТОЛЬКО ПОСЛЕ того, как заявка завершит обслуживание
+        или покинет систему по причине отказа.
+        """
         if self.state == NeuronState.FAULTY:
             self.is_operational = True
             self.state = NeuronState.FREE
+            self.pending_fault = False
             self.remaining_time = 0
             self.current_request = None
-            return False, None
+            return False, "restored"
+        elif self.state == NeuronState.BUSY and self.current_request is not None:
+            self.pending_fault = not self.pending_fault
+            return self.pending_fault, ("pending" if self.pending_fault else "cancelled_pending")
         else:
             self.is_operational = False
-            if self.current_request:
-                dropped_req = self.current_request
-                self.record_unprocessed()
             self.state = NeuronState.FAULTY
+            self.pending_fault = False
             self.remaining_time = 0
             self.current_request = None
-            return True, dropped_req
+            return True, "immediate"
 
     def get_display_info(self) -> Dict[str, Any]:
         return {
@@ -191,6 +208,7 @@ class Neuron:
             "col": self.col,
             "is_operational": self.is_operational,
             "state": self.state,
+            "pending_fault": getattr(self, "pending_fault", False),
             "remaining_time": self.remaining_time,
             "ticks_left": self.remaining_time,
             "request_id": self.current_request.id if self.current_request else None,
@@ -372,6 +390,7 @@ class BaseArchitecture(abc.ABC):
                     info = None
             if info:
                 n.is_operational = info.get("is_operational", True)
+                n.pending_fault = info.get("pending_fault", False)
                 n.state = info["state"]
                 n.remaining_time = info.get("remaining_time", 0)
                 n.q_stage = info.get("q_stage", 0)
@@ -388,24 +407,25 @@ class BaseArchitecture(abc.ABC):
         neuron = self.get_neuron((row, col))
         if not neuron:
             return False
-        is_faulty, dropped_req = neuron.toggle_fault()
+        is_fault_active, status = neuron.toggle_fault()
 
-        if is_faulty:
-            self.log_event("FAULT", f"Нейрон {neuron.address} отключен.")
-            if dropped_req:
-                self.rejected_count += 1
-                dropped_req.mark_rejected(self.current_tick, f"Сбой узла {neuron.address}")
-                self.log_event("REJECT", f"Отказ: Заявка #{dropped_req.id} прервана из-за сбоя {neuron.address}.")
-                for pos in dropped_req.path:
-                    other_n = self.get_neuron(pos)
-                    if other_n and other_n != neuron:
-                        other_n.release_aborted()
-        else:
-            self.log_event("SYS", f"Нейрон {neuron.address} включен.")
+        if status == "restored":
+            self.log_event("SYS", f"Нейрон {neuron.address} восстановлен и снова исправен.")
+        elif status == "pending":
+            req_id = neuron.current_request.id if neuron.current_request else "?"
+            self.log_event(
+                "FAULT",
+                f"Сбой узла {neuron.address} отложен: нейрон неуязвим во время обработки заявки #{req_id}. "
+                f"Сбой вступит в силу после освобождения узла."
+            )
+        elif status == "cancelled_pending":
+            self.log_event("SYS", f"Отложенный сбой узла {neuron.address} отменен.")
+        elif status == "immediate":
+            self.log_event("FAULT", f"Нейрон {neuron.address} отключен (аппаратный сбой).")
 
         if self.history:
             self._update_current_snapshot()
-        return is_faulty
+        return is_fault_active
 
     def step_simulation(self) -> None:
         if self.is_finished():
@@ -467,7 +487,10 @@ class BaseArchitecture(abc.ABC):
                     n = self.get_neuron(pos)
                     if n:
                         n.record_unprocessed()
+                        was_pending = getattr(n, "pending_fault", False)
                         n.release_aborted()
+                        if was_pending:
+                            self.log_event("FAULT", f"Нейрон {n.address} переведен в СБОЙ (отложенный сбой вступил в силу после ухода заявки #{req.id} по отказу).")
 
         # 3. Потактовый декремент времени обслуживания
         active_computing_reqs = [
@@ -489,7 +512,10 @@ class BaseArchitecture(abc.ABC):
                 for pos in req.path:
                     n = self.get_neuron(pos)
                     if n and n.current_request == req:
+                        was_pending = getattr(n, "pending_fault", False)
                         n.finalize_computation(self.single_use)
+                        if was_pending:
+                            self.log_event("FAULT", f"Нейрон {n.address} переведен в СБОЙ (отложенный сбой вступил в силу после завершения заявки #{req.id}).")
 
         new_logs = self.logs[cycle_logs_start:]
         self._record_snapshot(new_logs)
