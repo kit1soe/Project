@@ -372,7 +372,7 @@ class BaseArchitecture(abc.ABC):
         self.history.append(snapshot)
         self.current_history_index = len(self.history) - 1
 
-    def _update_current_snapshot(self) -> None:
+    def _update_current_snapshot(self, new_logs: Optional[List[Dict[str, str]]] = None) -> None:
         if not self.history or self.current_history_index >= len(self.history):
             return
         grid_data = {
@@ -381,6 +381,9 @@ class BaseArchitecture(abc.ABC):
         }
         active = sum(1 for req in self.all_requests if req.status == RequestStatus.IN_PROGRESS)
         curr = self.history[self.current_history_index]
+        snapshot_logs = list(curr.new_logs)
+        if new_logs:
+            snapshot_logs.extend(new_logs)
         self.history[self.current_history_index] = SimulationSnapshot(
             tick=self.current_tick,
             neurons_state=grid_data,
@@ -389,7 +392,7 @@ class BaseArchitecture(abc.ABC):
             completed_count=self.completed_count,
             rejected_count=self.rejected_count,
             total_generated=self.total_generated,
-            new_logs=curr.new_logs,
+            new_logs=snapshot_logs,
             next_input_idx=self.next_input_idx
         )
 
@@ -427,6 +430,7 @@ class BaseArchitecture(abc.ABC):
 
     def toggle_neuron_fault(self, row: int, col: int) -> bool:
         self.truncate_future()
+        log_start = len(self.logs)
         neuron = self.get_neuron((row, col))
         if not neuron:
             return False
@@ -447,11 +451,13 @@ class BaseArchitecture(abc.ABC):
             self.log_event("FAULT", f"Нейрон {neuron.address} отключен (аппаратный сбой).")
 
         if self.history:
-            self._update_current_snapshot()
+            self._update_current_snapshot(self.logs[log_start:])
         return is_fault_active
 
     def randomize_faults(self, count: int = 1, probability: float = 1.0, seed: Optional[int] = None) -> List[str]:
         """Inject random faults; busy neurons receive a deferred pending_fault."""
+        self.truncate_future()
+        log_start = len(self.logs)
         rng = random.Random(seed)
         candidates = [n for n in self.all_neurons() if n.is_operational and not n.pending_fault]
         rng.shuffle(candidates)
@@ -466,7 +472,7 @@ class BaseArchitecture(abc.ABC):
             if status != "cancelled_pending":
                 changed.append(neuron.address)
         if changed:
-            self._update_current_snapshot()
+            self._update_current_snapshot(self.logs[log_start:])
         return changed
 
     def step_simulation(self) -> None:

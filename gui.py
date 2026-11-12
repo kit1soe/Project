@@ -1,9 +1,7 @@
 """
 Интерфейс самомаршрутизации НС АЦП на PySide6.
-Поддерживает переключение топологий (свитчер):
-- Тороидальная матрица 6x4
-- Ромбовидная архитектура
-- Восьмиконечная звезда (Star-8 с 6 входами и 8 лучами)
+Поддерживает переключение девяти вариантов топологий, пошаговую историю,
+настройку потока заявок и моделирование случайных отказов нейронов.
 Отрисовывает граф возможных путей (сплошные и пунктирные линии) и активные маршруты.
 """
 
@@ -14,7 +12,7 @@ from PySide6.QtCore import Qt, QTimer, QPoint, QRectF
 from PySide6.QtGui import QFont, QPainter, QPen, QColor, QBrush
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QGridLayout, QPushButton, QLabel, QSpinBox, QComboBox,
+    QGridLayout, QPushButton, QLabel, QSpinBox, QDoubleSpinBox, QComboBox,
     QTextEdit, QSlider, QSplitter
 )
 
@@ -331,7 +329,12 @@ class MainWindow(QMainWindow):
         self.refresh_all()
 
     def _randomize_faults(self) -> None:
-        changed = self.ctrl.randomize_faults(count=self.spin_faults.value())
+        seed = self.spin_fault_seed.value()
+        self.ctrl.randomize_faults(
+            count=self.spin_faults.value(),
+            probability=self.spin_fault_probability.value(),
+            seed=None if seed < 0 else seed,
+        )
         self._update_logs()
         self.refresh_all()
 
@@ -438,6 +441,21 @@ class MainWindow(QMainWindow):
         self.spin_faults.setValue(1)
         self.spin_faults.setToolTip("Количество случайно выбранных нейронов")
         params_bar.addWidget(self.spin_faults)
+        params_bar.addWidget(QLabel("Вероятность:"))
+        self.spin_fault_probability = QDoubleSpinBox()
+        self.spin_fault_probability.setRange(0.0, 1.0)
+        self.spin_fault_probability.setSingleStep(0.1)
+        self.spin_fault_probability.setDecimals(2)
+        self.spin_fault_probability.setValue(1.0)
+        self.spin_fault_probability.setToolTip("Вероятность применения отказа к каждому выбранному нейрону")
+        params_bar.addWidget(self.spin_fault_probability)
+        params_bar.addWidget(QLabel("Seed:"))
+        self.spin_fault_seed = QSpinBox()
+        self.spin_fault_seed.setRange(-1, 2_147_483_647)
+        self.spin_fault_seed.setValue(-1)
+        self.spin_fault_seed.setSpecialValueText("случайный")
+        self.spin_fault_seed.setToolTip("-1 — новый случайный seed при каждом запуске")
+        params_bar.addWidget(self.spin_fault_seed)
         self.btn_random_faults = QPushButton("Сгенерировать")
         self.btn_random_faults.setToolTip("Случайно отключить нейроны; занятые получат отложенный сбой")
         self.btn_random_faults.clicked.connect(self._randomize_faults)

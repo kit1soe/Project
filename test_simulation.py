@@ -1,7 +1,7 @@
 """
 Модульные тесты для проверки НС АЦП (на базе unittest):
 1. Абстрактный суперкласс BaseArchitecture.
-2. Архитектура ToroidalGridArchitecture (тороид 6x4).
+2. Архитектура ToroidalGridArchitecture (тороид 6x6).
 3. Архитектура RhomboidArchitecture (ромбовидная W=[4, 6, 8, 6, 4]).
 4. Архитектура Star8Architecture (восьмиконечная звезда с 6 входами).
 5. Формула времени жизни t = 2*q + q + 2.
@@ -590,6 +590,36 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(n00.state, NeuronState.FAULTY)
         self.assertFalse(n00.is_operational)
         self.assertFalse(n00.pending_fault)
+
+    def test_random_fault_preserves_busy_request_and_records_event(self):
+        """Случайный сбой занятого ОИН откладывается и попадает в текущий снимок."""
+        arch = ToroidalGridArchitecture(rows=6, cols=6, q_required=4, total_initial_requests=1)
+        ctrl = SimulationController(arch)
+        ctrl.step_forward()
+
+        changed = arch.randomize_faults(count=1, probability=1.0, seed=0)
+        n00 = arch.get_neuron((0, 0))
+        self.assertIn((0, 0), changed)
+        self.assertEqual(n00.state, NeuronState.BUSY)
+        self.assertTrue(n00.pending_fault)
+        self.assertTrue(any(log["type"] == "FAULT" for log in arch.history[-1].new_logs))
+
+        ctrl.fast_forward()
+        self.assertEqual(arch.completed_count, 1)
+        self.assertEqual(n00.state, NeuronState.FAULTY)
+        self.assertFalse(n00.is_operational)
+
+    def test_random_fault_truncates_future_history(self):
+        """Случайный отказ после перемотки создаёт новую ветку истории."""
+        arch = ToroidalGridArchitecture(rows=6, cols=6, q_required=4, total_initial_requests=2)
+        arch.step_forward()
+        arch.step_forward()
+        arch.step_backward()
+        self.assertEqual(len(arch.history), 3)
+
+        arch.randomize_faults(count=1, probability=1.0, seed=0)
+        self.assertEqual(len(arch.history), 2)
+        self.assertEqual(arch.current_history_index, 1)
 
     def test_generation_ticks_custom(self):
         """Проверка генерации заявок строго на заданных тактах симуляции (замечание руководителя Югова А.А.)."""
