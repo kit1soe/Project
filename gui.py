@@ -20,7 +20,8 @@ from PySide6.QtWidgets import (
 
 from models import (
     NeuronState, RequestStatus, PlayState,
-    BaseArchitecture, ToroidalGridArchitecture, RhomboidArchitecture, Star8Architecture,
+    BaseArchitecture, ToroidalGridArchitecture, RhomboidArchitecture,
+    PyramidalArchitecture, Star8Architecture,
     HoneycombPipelineArchitecture, SymmetricStar8Architecture,
     Funnel8Architecture, ChordalFunnel8Architecture
 )
@@ -306,13 +307,15 @@ class MainWindow(QMainWindow):
 
         self.q_required: int = 4
         self.total_requests: int = 6
+        self.return_to_origin: bool = True
 
         # Базовая архитектура по умолчанию: Тороидальная матрица 6x6
         self.arch: BaseArchitecture = ToroidalGridArchitecture(
             rows=6,
             cols=6,
             q_required=self.q_required,
-            total_initial_requests=self.total_requests
+            total_initial_requests=self.total_requests,
+            return_to_origin=self.return_to_origin
         )
         self.ctrl = SimulationController(self.arch, speed_ms=400)
 
@@ -342,6 +345,7 @@ class MainWindow(QMainWindow):
         ctrl_bar.addWidget(QLabel("Топология:"))
         self.combo_topo = QComboBox()
         self.combo_topo.addItem("Тороидальная матрица 6x6", "torus")
+        self.combo_topo.addItem("Пирамидальная архитектура (W=[4,5,6,7,8])", "pyramid")
         self.combo_topo.addItem("Ромбовидная архитектура", "rhombus")
         self.combo_topo.addItem("Восьмиконечная звезда (Star-8, 4 входа)", "star8_4in")
         self.combo_topo.addItem("Восьмиконечная звезда (Star-8, 6 входов)", "star8_6in")
@@ -415,6 +419,13 @@ class MainWindow(QMainWindow):
         self.lbl_formula = QLabel(f"Время жизни: 2*q + q + 2 = {t_life} т.")
         self.lbl_formula.setStyleSheet("color: #4fc3f7; font-weight: bold;")
         params_bar.addWidget(self.lbl_formula)
+
+        params_bar.addWidget(QLabel("Алгоритм:"))
+        self.combo_mode = QComboBox()
+        self.combo_mode.addItem("Возврат в ячейку (маятниковый)", True)
+        self.combo_mode.addItem("Идти вниз при смещении", False)
+        self.combo_mode.currentIndexChanged.connect(self._on_routing_mode_changed)
+        params_bar.addWidget(self.combo_mode)
 
         params_bar.addStretch(1)
         main_layout.addLayout(params_bar)
@@ -564,6 +575,12 @@ class MainWindow(QMainWindow):
             }
         """)
 
+    def _on_routing_mode_changed(self, index: int) -> None:
+        """Переключение режима маршрутизации (возврат в ячейку / идти вниз при смещении)."""
+        self.return_to_origin = bool(self.combo_mode.currentData())
+        self.ctrl.set_return_to_origin(self.return_to_origin)
+        self.refresh_all()
+
     def _on_topo_changed(self, index: int) -> None:
         """Переключение топологии через свитчер."""
         key = self.combo_topo.currentData()
@@ -573,13 +590,22 @@ class MainWindow(QMainWindow):
             self.arch = ToroidalGridArchitecture(
                 rows=6, cols=6,
                 q_required=self.q_required,
-                total_initial_requests=self.total_requests
+                total_initial_requests=self.total_requests,
+                return_to_origin=self.return_to_origin
+            )
+        elif key == "pyramid":
+            self.arch = PyramidalArchitecture(
+                widths=[4, 5, 6, 7, 8],
+                q_required=self.q_required,
+                total_initial_requests=self.total_requests,
+                return_to_origin=self.return_to_origin
             )
         elif key == "rhombus":
             self.arch = RhomboidArchitecture(
                 widths=[4, 6, 8, 6, 4],
                 q_required=self.q_required,
-                total_initial_requests=self.total_requests
+                total_initial_requests=self.total_requests,
+                return_to_origin=self.return_to_origin
             )
         elif key in ("star8", "star8_4in"):
             self.arch = Star8Architecture(

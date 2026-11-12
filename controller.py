@@ -102,6 +102,15 @@ class SimulationController:
     def set_speed(self, speed_ms: int) -> None:
         self.speed_ms = speed_ms
 
+    def set_return_to_origin(self, val: bool) -> None:
+        """Переключение режима маршрутизации (возврат в ячейку / движение вниз при смещении)."""
+        self.arch.set_return_to_origin(val)
+        self.notify("state_change", self.state)
+
+    def set_generation_ticks(self, ticks: Optional[List[int]]) -> None:
+        """Установка заданных тактов генерации заявок."""
+        self.arch.set_generation_ticks(ticks)
+
     def get_kpi(self) -> Dict[str, Any]:
         total = self.arch.total_generated
         completed = self.arch.completed_count

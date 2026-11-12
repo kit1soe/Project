@@ -245,11 +245,15 @@ class BaseArchitecture(abc.ABC):
         self,
         q_required: int = 4,
         total_initial_requests: int = 4,
-        single_use: bool = False
+        single_use: bool = False,
+        return_to_origin: bool = True,
+        generation_ticks: Optional[List[int]] = None
     ):
         self.q_required: int = q_required
         self.total_initial_requests: int = total_initial_requests
         self.single_use: bool = single_use
+        self.return_to_origin: bool = return_to_origin
+        self.generation_ticks: Optional[List[int]] = list(generation_ticks) if generation_ticks is not None else None
 
         self.current_tick: int = 0
         self.total_generated: int = 0
@@ -263,6 +267,18 @@ class BaseArchitecture(abc.ABC):
         self.current_history_index: int = 0
 
         self.neurons_map: Dict[Tuple[int, int], Neuron] = {}
+
+    def set_return_to_origin(self, val: bool) -> None:
+        """Переключение режима маршрутизации: True - возврат в свою ячейку, False - идти вниз при смещении."""
+        self.return_to_origin = bool(val)
+        mode_str = "возврат в исходную ячейку" if self.return_to_origin else "движение вниз при смещении (без возврата)"
+        self.log_event("SYS", f"Режим маршрутизации: {mode_str}.")
+
+    def set_generation_ticks(self, ticks: Optional[List[int]]) -> None:
+        """Установка заданных тактов генерации заявок (при None - генерация по нечетным тактам)."""
+        self.generation_ticks = list(ticks) if ticks is not None else None
+        ticks_str = f"такты {self.generation_ticks}" if self.generation_ticks is not None else "нечетные такты"
+        self.log_event("SYS", f"Расписание генерации заявок: {ticks_str}.")
 
     @property
     def input_columns_count(self) -> int:
@@ -302,7 +318,13 @@ class BaseArchitecture(abc.ABC):
         if self.next_input_idx >= self.total_initial_requests:
             return []
 
-        if tick % 2 == 1:
+        should_generate = (
+            (tick in self.generation_ticks)
+            if self.generation_ticks is not None
+            else (tick % 2 == 1)
+        )
+
+        if should_generate:
             col = self.next_input_idx % self.input_columns_count
             req_id = self.next_input_idx + 1
             self.next_input_idx += 1
@@ -561,6 +583,9 @@ class ToroidalGridArchitecture(BaseArchitecture):
     """
     Тороидальная матричная архитектура 6x6.
     Закольцована только по горизонтали (по вертикали закольцовывание отсутствует).
+    Поддерживает переключение между режимами:
+    - return_to_origin=True: нейрон возвращается в свою ячейку (маятниковый возврат к исходному каналу).
+    - return_to_origin=False: нейрон не возвращается (идет вниз при смещении).
     """
 
     def __init__(
@@ -569,15 +594,23 @@ class ToroidalGridArchitecture(BaseArchitecture):
         cols: int = 6,
         q_required: int = 4,
         total_initial_requests: int = 6,
-        single_use: bool = False
+        single_use: bool = False,
+        return_to_origin: bool = True,
+        generation_ticks: Optional[List[int]] = None
     ):
-        super().__init__(q_required=q_required, total_initial_requests=total_initial_requests, single_use=single_use)
+        super().__init__(
+            q_required=q_required,
+            total_initial_requests=total_initial_requests,
+            single_use=single_use,
+            return_to_origin=return_to_origin,
+            generation_ticks=generation_ticks
+        )
         self.rows: int = rows
         self.cols: int = cols
         self.neurons: List[List[Neuron]] = []
         self.reset_topology()
         self._record_snapshot([])
-        self.log_event("SYS", f"Инициализация тора {rows}x{cols}: {total_initial_requests} заявок, q={q_required}.")
+        self.log_event("SYS", f"Инициализация тора {rows}x{cols}: {total_initial_requests} заявок, q={q_required}, return_to_origin={return_to_origin}.")
 
     @property
     def input_columns_count(self) -> int:
@@ -606,14 +639,14 @@ class ToroidalGridArchitecture(BaseArchitecture):
         n_left = self.neurons[next_row][col_left]
         n_right = self.neurons[next_row][col_right]
 
-        if cur_col == orig_col:
+        if cur_col == orig_col or not self.return_to_origin:
             return [
-                (n_center, "центр"),
+                (n_center, "центр (прямо вниз)"),
                 (n_left, "лево"),
                 (n_right, "право")
             ]
 
-        # Маятниковый возврат к исходному каналу
+        # Режим с возвратом в исходную ячейку (маятниковый возврат к исходному каналу)
         dist_left = (cur_col - orig_col) % self.cols
         dist_right = (orig_col - cur_col) % self.cols
 
@@ -663,27 +696,39 @@ class ToroidalGridArchitecture(BaseArchitecture):
         }
 
 
-class RhomboidArchitecture(BaseArchitecture):
+class PyramidalArchitecture(BaseArchitecture):
     """
-    Ромбовидная архитектура НС АЦП.
-    Ширина слоев расширяется от входа к центру, затем сужается к выходу: W = [4, 6, 8, 6, 4].
+    Пирамидальная архитектура НС АЦП.
+    Ширина слоев расширяется сверху вниз (W = [4, 5, 6, 7, 8]).
+    Слои закольцованы по горизонтали.
+    Поддерживает переключение между режимами:
+    - return_to_origin=True: нейрон возвращается в свою ячейку (проекцию исходного канала).
+    - return_to_origin=False: нейрон не возвращается (идет вниз при смещении).
     """
-    DEFAULT_WIDTHS = [4, 6, 8, 6, 4]
+    DEFAULT_WIDTHS = [4, 5, 6, 7, 8]
 
     def __init__(
         self,
         widths: Optional[List[int]] = None,
         q_required: int = 4,
         total_initial_requests: int = 4,
-        single_use: bool = False
+        single_use: bool = False,
+        return_to_origin: bool = True,
+        generation_ticks: Optional[List[int]] = None
     ):
-        super().__init__(q_required=q_required, total_initial_requests=total_initial_requests, single_use=single_use)
+        super().__init__(
+            q_required=q_required,
+            total_initial_requests=total_initial_requests,
+            single_use=single_use,
+            return_to_origin=return_to_origin,
+            generation_ticks=generation_ticks
+        )
         self.widths = list(widths or self.DEFAULT_WIDTHS)
         self.rows = len(self.widths)
         self.neurons: List[List[Neuron]] = []
         self.reset_topology()
         self._record_snapshot([])
-        self.log_event("SYS", f"Инициализация ромба W={self.widths}: {total_initial_requests} заявок, q={q_required}.")
+        self.log_event("SYS", f"Инициализация пирамиды W={self.widths}: {total_initial_requests} заявок, q={q_required}, return_to_origin={return_to_origin}.")
 
     @property
     def input_columns_count(self) -> int:
@@ -698,7 +743,9 @@ class RhomboidArchitecture(BaseArchitecture):
         self.next_input_idx = 0
 
     def get_candidate_neighbors(self, neuron: Neuron, request: Request) -> List[Tuple[Neuron, str]]:
-        next_row = (neuron.row + 1) % self.rows
+        if neuron.row >= self.rows - 1:
+            return []
+        next_row = neuron.row + 1
         cur_w = self.widths[neuron.row]
         next_w = self.widths[next_row]
         cur_c = neuron.col
@@ -714,7 +761,143 @@ class RhomboidArchitecture(BaseArchitecture):
         orig_w = self.widths[0]
         orig_proj = int(round(request.origin_col * (next_w - 1) / max(1, orig_w - 1)))
 
-        if center_c == orig_proj:
+        if center_c == orig_proj or not self.return_to_origin:
+            return [
+                (n_center, "по каналу (центр прямо вниз)"),
+                (n_left, "веерное расширение (влево)"),
+                (n_right, "веерное расширение (вправо)")
+            ]
+
+        # Режим с возвратом в исходную ячейку
+        dist_left = (center_c - orig_proj) % next_w
+        dist_right = (orig_proj - center_c) % next_w
+
+        if dist_left < dist_right:
+            return [
+                (n_left, "стягивание к каналу (влево)"),
+                (n_center, "смещение (центр)"),
+                (n_right, "альтернатива (вправо)")
+            ]
+        else:
+            return [
+                (n_right, "стягивание к каналу (вправо)"),
+                (n_center, "смещение (центр)"),
+                (n_left, "альтернатива (влево)")
+            ]
+
+    def get_topology_info(self) -> Dict[str, Any]:
+        nodes, edges = [], []
+        max_w = max(self.widths)
+
+        for r, w in enumerate(self.widths):
+            for c in range(w):
+                norm_x = (c + 0.5) / w
+                x = 0.5 + (norm_x - 0.5) * (w / max_w)
+                nodes.append({
+                    "address": (r, c),
+                    "label": f"[{r}, {c}]",
+                    "row": r,
+                    "col": c,
+                    "x": x,
+                    "y": (r + 0.5) / self.rows,
+                    "is_input": (r == 0)
+                })
+
+                if r < self.rows - 1:
+                    next_w = self.widths[r + 1]
+                    proj_c = int(round(c * (next_w - 1) / max(1, w - 1)))
+                    for offset, kind in [(0, "primary"), (-1, "lateral"), (1, "lateral")]:
+                        nc = (proj_c + offset) % next_w
+                        edges.append({
+                            "from": (r, c),
+                            "to": (r + 1, nc),
+                            "type": kind,
+                            "color": "#4fc3f7" if kind == "primary" else "#555555"
+                        })
+
+                edges.append({
+                    "from": (r, c),
+                    "to": (r, (c + 1) % w),
+                    "type": "lateral",
+                    "color": "#444444"
+                })
+
+        return {
+            "type": "pyramidal",
+            "name": f"Пирамидальная архитектура ({'-'.join(map(str, self.widths))})",
+            "widths": self.widths,
+            "rows": self.rows,
+            "nodes": nodes,
+            "edges": edges,
+            "wrap_horizontal": True
+        }
+
+
+class RhomboidArchitecture(BaseArchitecture):
+    """
+    Ромбовидная архитектура НС АЦП.
+    Ширина слоев расширяется от входа к центру, затем сужается к выходу: W = [4, 6, 8, 6, 4].
+    Поддерживает переключение между режимами:
+    - return_to_origin=True: нейрон возвращается в свою ячейку (проекцию исходного канала).
+    - return_to_origin=False: нейрон не возвращается (идет вниз при смещении).
+    """
+    DEFAULT_WIDTHS = [4, 6, 8, 6, 4]
+
+    def __init__(
+        self,
+        widths: Optional[List[int]] = None,
+        q_required: int = 4,
+        total_initial_requests: int = 4,
+        single_use: bool = False,
+        return_to_origin: bool = True,
+        generation_ticks: Optional[List[int]] = None
+    ):
+        super().__init__(
+            q_required=q_required,
+            total_initial_requests=total_initial_requests,
+            single_use=single_use,
+            return_to_origin=return_to_origin,
+            generation_ticks=generation_ticks
+        )
+        self.widths = list(widths or self.DEFAULT_WIDTHS)
+        self.rows = len(self.widths)
+        self.neurons: List[List[Neuron]] = []
+        self.reset_topology()
+        self._record_snapshot([])
+        self.log_event("SYS", f"Инициализация ромба W={self.widths}: {total_initial_requests} заявок, q={q_required}, return_to_origin={return_to_origin}.")
+
+    @property
+    def input_columns_count(self) -> int:
+        return self.widths[0]
+
+    def reset_topology(self) -> None:
+        self.neurons = [
+            [Neuron(r, c) for c in range(w)]
+            for r, w in enumerate(self.widths)
+        ]
+        self.neurons_map = {n.address: n for row in self.neurons for n in row}
+        self.next_input_idx = 0
+
+    def get_candidate_neighbors(self, neuron: Neuron, request: Request) -> List[Tuple[Neuron, str]]:
+        if neuron.row >= self.rows - 1:
+            return []
+        next_row = neuron.row + 1
+        cur_w = self.widths[neuron.row]
+        next_w = self.widths[next_row]
+        cur_c = neuron.col
+
+        center_c = int(round(cur_c * (next_w - 1) / max(1, cur_w - 1)))
+        left_c = (center_c - 1) % next_w
+        right_c = (center_c + 1) % next_w
+
+        n_center = self.neurons[next_row][center_c]
+        n_left = self.neurons[next_row][left_c]
+        n_right = self.neurons[next_row][right_c]
+
+        orig_w = self.widths[0]
+        orig_proj = int(round(request.origin_col * (next_w - 1) / max(1, orig_w - 1)))
+
+        if center_c == orig_proj or not self.return_to_origin:
             return [
                 (n_center, "по каналу (центр)"),
                 (n_left, "веерное расширение (влево)"),

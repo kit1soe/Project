@@ -17,6 +17,7 @@ import sys
 import unittest
 from models import (
     BaseArchitecture, ToroidalGridArchitecture, RhomboidArchitecture,
+    PyramidalArchitecture,
     Star8Architecture, HoneycombPipelineArchitecture, SymmetricStar8Architecture,
     Funnel8Architecture, ChordalFunnel8Architecture,
     SimulationEngine,
@@ -440,54 +441,59 @@ class TestSimulation(unittest.TestCase):
 
         win = MainWindow()
         self.assertIsNotNone(win)
-        self.assertEqual(win.combo_topo.count(), 8)
+        self.assertEqual(win.combo_topo.count(), 9)
 
-        # 1. Переключение на Ромб
+        # 1. Переключение на Пирамиду
         win.combo_topo.setCurrentIndex(1)
+        self.assertEqual(win.ctrl.architecture.get_topology_info()["type"], "pyramidal")
+        win.ctrl.step_forward()
+
+        # 2. Переключение на Ромб
+        win.combo_topo.setCurrentIndex(2)
         self.assertEqual(win.ctrl.architecture.get_topology_info()["type"], "rhomboid")
         win.ctrl.step_forward()
 
-        # 2. Переключение на Star-8 (4 входа)
-        win.combo_topo.setCurrentIndex(2)
+        # 3. Переключение на Star-8 (4 входа)
+        win.combo_topo.setCurrentIndex(3)
         info4 = win.ctrl.architecture.get_topology_info()
         self.assertEqual(info4["type"], "star8")
         self.assertEqual(info4["num_inputs"], 4)
         self.assertEqual(info4["ray_depth"], 4)
         win.ctrl.step_forward()
 
-        # 3. Переключение на Star-8 (6 входов)
-        win.combo_topo.setCurrentIndex(3)
+        # 4. Переключение на Star-8 (6 входов)
+        win.combo_topo.setCurrentIndex(4)
         info6 = win.ctrl.architecture.get_topology_info()
         self.assertEqual(info6["type"], "star8")
         self.assertEqual(info6["num_inputs"], 6)
         self.assertEqual(info6["ray_depth"], 4)
         win.ctrl.step_forward()
 
-        # 4. Переключение на Соту (Honeycomb)
-        win.combo_topo.setCurrentIndex(4)
+        # 5. Переключение на Соту (Honeycomb)
+        win.combo_topo.setCurrentIndex(5)
         info_honey = win.ctrl.architecture.get_topology_info()
         self.assertEqual(info_honey["type"], "honeycomb")
         win.ctrl.step_forward()
 
-        # 5. Переключение на Симметричную звезду C8 (Sym-Star8)
-        win.combo_topo.setCurrentIndex(5)
+        # 6. Переключение на Симметричную звезду C8 (Sym-Star8)
+        win.combo_topo.setCurrentIndex(6)
         info_sym = win.ctrl.architecture.get_topology_info()
         self.assertEqual(info_sym["type"], "sym_star8")
         win.ctrl.step_forward()
 
-        # 6. Переключение на Funnel-8
-        win.combo_topo.setCurrentIndex(6)
+        # 7. Переключение на Funnel-8
+        win.combo_topo.setCurrentIndex(7)
         info_f8 = win.ctrl.architecture.get_topology_info()
         self.assertEqual(info_f8["type"], "funnel8")
         win.ctrl.step_forward()
 
-        # 7. Переключение на Chordal-Funnel-8
-        win.combo_topo.setCurrentIndex(7)
+        # 8. Переключение на Chordal-Funnel-8
+        win.combo_topo.setCurrentIndex(8)
         info_cf8 = win.ctrl.architecture.get_topology_info()
         self.assertEqual(info_cf8["type"], "chordal_funnel8")
         win.ctrl.step_forward()
 
-        # 8. Возврат на Тороид 6x6
+        # 9. Возврат на Тороид 6x6
         win.combo_topo.setCurrentIndex(0)
         self.assertEqual(win.combo_topo.itemText(0), "Тороидальная матрица 6x6")
         self.assertEqual(win.ctrl.architecture.get_topology_info()["type"], "toroidal_grid")
@@ -584,6 +590,108 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(n00.state, NeuronState.FAULTY)
         self.assertFalse(n00.is_operational)
         self.assertFalse(n00.pending_fault)
+
+    def test_generation_ticks_custom(self):
+        """Проверка генерации заявок строго на заданных тактах симуляции (замечание руководителя Югова А.А.)."""
+        arch = ToroidalGridArchitecture(rows=6, cols=4, q_required=3, total_initial_requests=3, generation_ticks=[2, 5, 8])
+        ctrl = SimulationController(arch)
+
+        # Такт 1: не в generation_ticks -> заявок нет
+        ctrl.step_forward()
+        self.assertEqual(len(arch.all_requests), 0)
+
+        # Такт 2: в generation_ticks -> Заявка #1 сгенерирована
+        ctrl.step_forward()
+        self.assertEqual(len(arch.all_requests), 1)
+        self.assertEqual(arch.all_requests[0].id, 1)
+
+        # Такт 3, 4: нет новых заявок
+        ctrl.step_forward()
+        self.assertEqual(len(arch.all_requests), 1)
+        ctrl.step_forward()
+        self.assertEqual(len(arch.all_requests), 1)
+
+        # Такт 5: Заявка #2 сгенерирована
+        ctrl.step_forward()
+        self.assertEqual(len(arch.all_requests), 2)
+        self.assertEqual(arch.all_requests[1].id, 2)
+
+    def test_routing_mode_downward_without_return_torus(self):
+        """
+        Проверка режима переключения алгоритма: 'идти вниз при смещении' (без возврата в исходный столбец).
+        При сбое нейрона заявка смещается в соседний столбец и продолжает двигаться вертикально вниз по новому столбцу.
+        """
+        # С возвратом (return_to_origin = True)
+        arch_ret = ToroidalGridArchitecture(rows=6, cols=4, q_required=4, total_initial_requests=1, return_to_origin=True)
+        arch_ret.toggle_neuron_fault(1, 0)
+        ctrl_ret = SimulationController(arch_ret)
+        ctrl_ret.step_forward()  # (0, 0)
+        ctrl_ret.step_forward()  # Сбой (1, 0) -> уходит в (1, 3)
+        self.assertEqual(arch_ret.all_requests[0].path[-1], (1, 3))
+        ctrl_ret.step_forward()  # Режим с возвратом -> возвращается в (2, 0)
+        self.assertEqual(arch_ret.all_requests[0].path[-1], (2, 0))
+
+        # Без возврата (return_to_origin = False)
+        arch_no_ret = ToroidalGridArchitecture(rows=6, cols=4, q_required=4, total_initial_requests=1, return_to_origin=False)
+        arch_no_ret.toggle_neuron_fault(1, 0)
+        ctrl_no_ret = SimulationController(arch_no_ret)
+        ctrl_no_ret.step_forward()  # (0, 0)
+        ctrl_no_ret.step_forward()  # Сбой (1, 0) -> уходит в (1, 3)
+        self.assertEqual(arch_no_ret.all_requests[0].path[-1], (1, 3))
+        ctrl_no_ret.step_forward()  # Режим БЕЗ возврата -> идет прямо вниз в новом столбце (2, 3)!
+        self.assertEqual(arch_no_ret.all_requests[0].path[-1], (2, 3))
+
+    def test_pyramidal_architecture_and_modes(self):
+        """
+        Проверка класса пирамидальной архитектуры (W=[4, 5, 6, 7, 8]):
+        - Проверка топологии и количества узлов: 4+5+6+7+8 = 30 узлов.
+        - Проверка построения конвейера заявок.
+        - Проверка переключения режима маршрутизации (возврат vs прямой спуск).
+        """
+        pyramid = PyramidalArchitecture(q_required=4, total_initial_requests=1, return_to_origin=True)
+        self.assertEqual(len(pyramid.all_neurons()), 30)
+        info = pyramid.get_topology_info()
+        self.assertEqual(info["type"], "pyramidal")
+        self.assertEqual(len(info["nodes"]), 30)
+
+        # Конвейер заявки в нормальном режиме
+        ctrl = SimulationController(pyramid)
+        ctrl.step_forward()  # Слой 0: (0, 0)
+        req = pyramid.all_requests[0]
+        self.assertEqual(req.path[-1], (0, 0))
+        ctrl.step_forward()  # Слой 1: (1, 0)
+        self.assertEqual(req.path[-1], (1, 0))
+        ctrl.step_forward()  # Слой 2: (2, 0)
+        self.assertEqual(req.path[-1], (2, 0))
+        ctrl.step_forward()  # Слой 3: (3, 0)
+        self.assertEqual(req.path[-1], (3, 0))
+        self.assertTrue(req.is_pipeline_built())
+
+        # Режим без возврата в пирамиде
+        pyramid_no_ret = PyramidalArchitecture(q_required=4, total_initial_requests=1, return_to_origin=False)
+        pyramid_no_ret.toggle_neuron_fault(1, 0)
+        ctrl2 = SimulationController(pyramid_no_ret)
+        ctrl2.step_forward()  # (0, 0)
+        ctrl2.step_forward()  # (1, 0) сбой -> смещение вправо (1, 1) или влево (1, 4)
+        c_layer1 = pyramid_no_ret.all_requests[0].path[-1][1]
+        self.assertNotEqual(c_layer1, 0)
+        ctrl2.step_forward()  # Слой 2: идет прямо вниз по проекции текущего смещения
+        c_layer2 = pyramid_no_ret.all_requests[0].path[-1][1]
+        expected_center = int(round(c_layer1 * (6 - 1) / max(1, 5 - 1)))
+        self.assertEqual(c_layer2, expected_center)
+
+    def test_rhomboid_architecture_modes(self):
+        """Проверка переключения режимов маршрутизации в ромбовидной архитектуре."""
+        rhombus_ret = RhomboidArchitecture(q_required=4, total_initial_requests=1, return_to_origin=True)
+        self.assertTrue(rhombus_ret.return_to_origin)
+        rhombus_ret.set_return_to_origin(False)
+        self.assertFalse(rhombus_ret.return_to_origin)
+
+        # Прогон симуляции ромба в режиме без возврата
+        ctrl = SimulationController(rhombus_ret)
+        ctrl.fast_forward()
+        self.assertEqual(rhombus_ret.completed_count, 1)
+
 
 
 if __name__ == "__main__":
