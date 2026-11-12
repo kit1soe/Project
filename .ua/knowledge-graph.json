@@ -1,0 +1,5055 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "NS ADC Multi-topology Self-routing Simulator",
+    "languages": [
+      "Python",
+      "Markdown",
+      "JSON"
+    ],
+    "frameworks": [
+      "PySide6",
+      "SQLite"
+    ],
+    "description": "A desktop simulation of self-routing NS ADC architectures with fault injection and persistent experiment analytics.",
+    "analyzedAt": "2026-11-12T19:33:38.876269+00:00",
+    "gitCommitHash": "09a6cf932948be74ab4a9326d026e4c9a7caf995"
+  },
+  "nodes": [
+    {
+      "id": "document:GEMINI.md",
+      "type": "document",
+      "name": "GEMINI.md",
+      "filePath": "GEMINI.md",
+      "summary": "Project instruction pointing to mgi-mind persistent project memory.",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Project documentation covering supported architectures, simulation behavior, analytics schema, and data generation.",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "file:analytics_db.py",
+      "type": "file",
+      "name": "analytics_db.py",
+      "filePath": "analytics_db.py",
+      "summary": "SQLite recorder and derived metrics store for runs, ticks, requests, fault events, neuron states, and experiment aggregates.",
+      "tags": [
+        "python",
+        "code"
+      ]
+    },
+    {
+      "id": "file:analytics_report.py",
+      "type": "file",
+      "name": "analytics_report.py",
+      "filePath": "analytics_report.py",
+      "summary": "Self-contained browser dashboard for comparing persistent experiment runs and architecture metrics.",
+      "tags": [
+        "python",
+        "code"
+      ]
+    },
+    {
+      "id": "file:controller.py",
+      "type": "file",
+      "name": "controller.py",
+      "filePath": "controller.py",
+      "summary": "MVC controller for stepping, playback, topology changes, fault injection, and KPI calculation.",
+      "tags": [
+        "python",
+        "code"
+      ]
+    },
+    {
+      "id": "file:generate_analytics.py",
+      "type": "file",
+      "name": "generate_analytics.py",
+      "filePath": "generate_analytics.py",
+      "summary": "Deterministic experiment generator covering all topology variants and failure scenarios.",
+      "tags": [
+        "python",
+        "code"
+      ]
+    },
+    {
+      "id": "file:gui.py",
+      "type": "file",
+      "name": "gui.py",
+      "filePath": "gui.py",
+      "summary": "PySide6 desktop interface for topology visualization, simulation controls, fault modes, and persistent analytics.",
+      "tags": [
+        "python",
+        "code"
+      ]
+    },
+    {
+      "id": "file:main.py",
+      "type": "file",
+      "name": "main.py",
+      "filePath": "main.py",
+      "summary": "main.py in the NS ADC self-routing simulation project.",
+      "tags": [
+        "python",
+        "code"
+      ]
+    },
+    {
+      "id": "file:models.py",
+      "type": "file",
+      "name": "models.py",
+      "filePath": "models.py",
+      "summary": "Simulation model: request lifecycle, neurons, Memento history, routing algorithms, and all topology implementations.",
+      "tags": [
+        "python",
+        "code"
+      ]
+    },
+    {
+      "id": "config:skills-lock.json",
+      "type": "config",
+      "name": "skills-lock.json",
+      "filePath": "skills-lock.json",
+      "summary": "skills-lock.json in the NS ADC self-routing simulation project.",
+      "tags": [
+        "json",
+        "config"
+      ]
+    },
+    {
+      "id": "file:test_simulation.py",
+      "type": "file",
+      "name": "test_simulation.py",
+      "filePath": "test_simulation.py",
+      "summary": "Unit and headless GUI regression suite for routing, failures, history, analytics, and scheduled faults.",
+      "tags": [
+        "python",
+        "code"
+      ]
+    },
+    {
+      "id": "class:analytics_db.py:AnalyticsRecorder",
+      "type": "class",
+      "name": "AnalyticsRecorder",
+      "filePath": "analytics_db.py",
+      "summary": "Class AnalyticsRecorder defined in analytics_db.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.__init__",
+      "type": "function",
+      "name": "AnalyticsRecorder.__init__",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.__init__ in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder._backfill_legacy_metrics",
+      "type": "function",
+      "name": "AnalyticsRecorder._backfill_legacy_metrics",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder._backfill_legacy_metrics in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.clear",
+      "type": "function",
+      "name": "AnalyticsRecorder.clear",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.clear in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.start_run",
+      "type": "function",
+      "name": "AnalyticsRecorder.start_run",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.start_run in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.update_run_metadata",
+      "type": "function",
+      "name": "AnalyticsRecorder.update_run_metadata",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.update_run_metadata in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder._write_topology",
+      "type": "function",
+      "name": "AnalyticsRecorder._write_topology",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder._write_topology in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.record_action",
+      "type": "function",
+      "name": "AnalyticsRecorder.record_action",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.record_action in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.record_snapshot",
+      "type": "function",
+      "name": "AnalyticsRecorder.record_snapshot",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.record_snapshot in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder._refresh_request_metrics",
+      "type": "function",
+      "name": "AnalyticsRecorder._refresh_request_metrics",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder._refresh_request_metrics in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder._percentile",
+      "type": "function",
+      "name": "AnalyticsRecorder._percentile",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder._percentile in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder._refresh_run_metrics",
+      "type": "function",
+      "name": "AnalyticsRecorder._refresh_run_metrics",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder._refresh_run_metrics in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder._current_history_index",
+      "type": "function",
+      "name": "AnalyticsRecorder._current_history_index",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder._current_history_index in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.latest_run_id",
+      "type": "function",
+      "name": "AnalyticsRecorder.latest_run_id",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.latest_run_id in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.get_run_summary",
+      "type": "function",
+      "name": "AnalyticsRecorder.get_run_summary",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.get_run_summary in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.list_runs",
+      "type": "function",
+      "name": "AnalyticsRecorder.list_runs",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.list_runs in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.get_tick_metrics",
+      "type": "function",
+      "name": "AnalyticsRecorder.get_tick_metrics",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.get_tick_metrics in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.get_event_counts",
+      "type": "function",
+      "name": "AnalyticsRecorder.get_event_counts",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.get_event_counts in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.get_request_outcomes",
+      "type": "function",
+      "name": "AnalyticsRecorder.get_request_outcomes",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.get_request_outcomes in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.get_neuron_heatmap",
+      "type": "function",
+      "name": "AnalyticsRecorder.get_neuron_heatmap",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.get_neuron_heatmap in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.export_csv",
+      "type": "function",
+      "name": "AnalyticsRecorder.export_csv",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.export_csv in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.close",
+      "type": "function",
+      "name": "AnalyticsRecorder.close",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.close in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.__enter__",
+      "type": "function",
+      "name": "AnalyticsRecorder.__enter__",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.__enter__ in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:AnalyticsRecorder.__exit__",
+      "type": "function",
+      "name": "AnalyticsRecorder.__exit__",
+      "filePath": "analytics_db.py",
+      "summary": "Method AnalyticsRecorder.__exit__ in analytics_db.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:_plain",
+      "type": "function",
+      "name": "_plain",
+      "filePath": "analytics_db.py",
+      "summary": "Function _plain in analytics_db.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:_json",
+      "type": "function",
+      "name": "_json",
+      "filePath": "analytics_db.py",
+      "summary": "Function _json in analytics_db.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:_address",
+      "type": "function",
+      "name": "_address",
+      "filePath": "analytics_db.py",
+      "summary": "Function _address in analytics_db.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:_now",
+      "type": "function",
+      "name": "_now",
+      "filePath": "analytics_db.py",
+      "summary": "Function _now in analytics_db.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:_connect",
+      "type": "function",
+      "name": "_connect",
+      "filePath": "analytics_db.py",
+      "summary": "Function _connect in analytics_db.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:export_architecture",
+      "type": "function",
+      "name": "export_architecture",
+      "filePath": "analytics_db.py",
+      "summary": "Function export_architecture in analytics_db.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:event_counts",
+      "type": "function",
+      "name": "event_counts",
+      "filePath": "analytics_db.py",
+      "summary": "Function event_counts in analytics_db.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_db.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "analytics_db.py",
+      "summary": "Function main in analytics_db.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_report.py:_json_script",
+      "type": "function",
+      "name": "_json_script",
+      "filePath": "analytics_report.py",
+      "summary": "Function _json_script in analytics_report.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_report.py:load_report_data",
+      "type": "function",
+      "name": "load_report_data",
+      "filePath": "analytics_report.py",
+      "summary": "Function load_report_data in analytics_report.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_report.py:render_report",
+      "type": "function",
+      "name": "render_report",
+      "filePath": "analytics_report.py",
+      "summary": "Function render_report in analytics_report.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_report.py:generate_report",
+      "type": "function",
+      "name": "generate_report",
+      "filePath": "analytics_report.py",
+      "summary": "Function generate_report in analytics_report.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:analytics_report.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "analytics_report.py",
+      "summary": "Function main in analytics_report.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "class:controller.py:SimulationController",
+      "type": "class",
+      "name": "SimulationController",
+      "filePath": "controller.py",
+      "summary": "Class SimulationController defined in controller.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.__init__",
+      "type": "function",
+      "name": "SimulationController.__init__",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.__init__ in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.current_tick",
+      "type": "function",
+      "name": "SimulationController.current_tick",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.current_tick in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.architecture",
+      "type": "function",
+      "name": "SimulationController.architecture",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.architecture in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.subscribe",
+      "type": "function",
+      "name": "SimulationController.subscribe",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.subscribe in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.notify",
+      "type": "function",
+      "name": "SimulationController.notify",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.notify in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.set_architecture",
+      "type": "function",
+      "name": "SimulationController.set_architecture",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.set_architecture in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.play",
+      "type": "function",
+      "name": "SimulationController.play",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.play in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.pause",
+      "type": "function",
+      "name": "SimulationController.pause",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.pause in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.toggle_play",
+      "type": "function",
+      "name": "SimulationController.toggle_play",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.toggle_play in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.step_forward",
+      "type": "function",
+      "name": "SimulationController.step_forward",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.step_forward in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.step_backward",
+      "type": "function",
+      "name": "SimulationController.step_backward",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.step_backward in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.fast_forward",
+      "type": "function",
+      "name": "SimulationController.fast_forward",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.fast_forward in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.go_to_tick",
+      "type": "function",
+      "name": "SimulationController.go_to_tick",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.go_to_tick in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.reset",
+      "type": "function",
+      "name": "SimulationController.reset",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.reset in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.toggle_fault",
+      "type": "function",
+      "name": "SimulationController.toggle_fault",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.toggle_fault in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.randomize_faults",
+      "type": "function",
+      "name": "SimulationController.randomize_faults",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.randomize_faults in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.schedule_random_faults",
+      "type": "function",
+      "name": "SimulationController.schedule_random_faults",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.schedule_random_faults in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.set_speed",
+      "type": "function",
+      "name": "SimulationController.set_speed",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.set_speed in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.set_return_to_origin",
+      "type": "function",
+      "name": "SimulationController.set_return_to_origin",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.set_return_to_origin in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.set_generation_ticks",
+      "type": "function",
+      "name": "SimulationController.set_generation_ticks",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.set_generation_ticks in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:controller.py:SimulationController.get_kpi",
+      "type": "function",
+      "name": "SimulationController.get_kpi",
+      "filePath": "controller.py",
+      "summary": "Method SimulationController.get_kpi in controller.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:generate_analytics.py:_factories",
+      "type": "function",
+      "name": "_factories",
+      "filePath": "generate_analytics.py",
+      "summary": "Function _factories in generate_analytics.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:generate_analytics.py:_record_until_finished",
+      "type": "function",
+      "name": "_record_until_finished",
+      "filePath": "generate_analytics.py",
+      "summary": "Function _record_until_finished in generate_analytics.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:generate_analytics.py:_fault_address",
+      "type": "function",
+      "name": "_fault_address",
+      "filePath": "generate_analytics.py",
+      "summary": "Function _fault_address in generate_analytics.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:generate_analytics.py:generate",
+      "type": "function",
+      "name": "generate",
+      "filePath": "generate_analytics.py",
+      "summary": "Function generate in generate_analytics.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:generate_analytics.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "generate_analytics.py",
+      "summary": "Function main in generate_analytics.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "class:gui.py:NeuronButton",
+      "type": "class",
+      "name": "NeuronButton",
+      "filePath": "gui.py",
+      "summary": "Class NeuronButton defined in gui.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:NeuronButton.__init__",
+      "type": "function",
+      "name": "NeuronButton.__init__",
+      "filePath": "gui.py",
+      "summary": "Method NeuronButton.__init__ in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:NeuronButton.update_view",
+      "type": "function",
+      "name": "NeuronButton.update_view",
+      "filePath": "gui.py",
+      "summary": "Method NeuronButton.update_view in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:NeuronButton._hex_to_rgba",
+      "type": "function",
+      "name": "NeuronButton._hex_to_rgba",
+      "filePath": "gui.py",
+      "summary": "Method NeuronButton._hex_to_rgba in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:gui.py:TopologyCanvasWidget",
+      "type": "class",
+      "name": "TopologyCanvasWidget",
+      "filePath": "gui.py",
+      "summary": "Class TopologyCanvasWidget defined in gui.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:TopologyCanvasWidget.__init__",
+      "type": "function",
+      "name": "TopologyCanvasWidget.__init__",
+      "filePath": "gui.py",
+      "summary": "Method TopologyCanvasWidget.__init__ in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:TopologyCanvasWidget.set_controller",
+      "type": "function",
+      "name": "TopologyCanvasWidget.set_controller",
+      "filePath": "gui.py",
+      "summary": "Method TopologyCanvasWidget.set_controller in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:TopologyCanvasWidget.rebuild_canvas",
+      "type": "function",
+      "name": "TopologyCanvasWidget.rebuild_canvas",
+      "filePath": "gui.py",
+      "summary": "Method TopologyCanvasWidget.rebuild_canvas in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:TopologyCanvasWidget.resizeEvent",
+      "type": "function",
+      "name": "TopologyCanvasWidget.resizeEvent",
+      "filePath": "gui.py",
+      "summary": "Method TopologyCanvasWidget.resizeEvent in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:TopologyCanvasWidget._calculate_positions",
+      "type": "function",
+      "name": "TopologyCanvasWidget._calculate_positions",
+      "filePath": "gui.py",
+      "summary": "Method TopologyCanvasWidget._calculate_positions in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:TopologyCanvasWidget.paintEvent",
+      "type": "function",
+      "name": "TopologyCanvasWidget.paintEvent",
+      "filePath": "gui.py",
+      "summary": "Method TopologyCanvasWidget.paintEvent in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:TopologyCanvasWidget.refresh_views",
+      "type": "function",
+      "name": "TopologyCanvasWidget.refresh_views",
+      "filePath": "gui.py",
+      "summary": "Method TopologyCanvasWidget.refresh_views in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:gui.py:AnalyticsLineChart",
+      "type": "class",
+      "name": "AnalyticsLineChart",
+      "filePath": "gui.py",
+      "summary": "Class AnalyticsLineChart defined in gui.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsLineChart.__init__",
+      "type": "function",
+      "name": "AnalyticsLineChart.__init__",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsLineChart.__init__ in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsLineChart.set_data",
+      "type": "function",
+      "name": "AnalyticsLineChart.set_data",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsLineChart.set_data in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsLineChart.paintEvent",
+      "type": "function",
+      "name": "AnalyticsLineChart.paintEvent",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsLineChart.paintEvent in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:gui.py:AnalyticsBarChart",
+      "type": "class",
+      "name": "AnalyticsBarChart",
+      "filePath": "gui.py",
+      "summary": "Class AnalyticsBarChart defined in gui.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsBarChart.__init__",
+      "type": "function",
+      "name": "AnalyticsBarChart.__init__",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsBarChart.__init__ in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsBarChart.set_data",
+      "type": "function",
+      "name": "AnalyticsBarChart.set_data",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsBarChart.set_data in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsBarChart.paintEvent",
+      "type": "function",
+      "name": "AnalyticsBarChart.paintEvent",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsBarChart.paintEvent in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:gui.py:AnalyticsHeatmap",
+      "type": "class",
+      "name": "AnalyticsHeatmap",
+      "filePath": "gui.py",
+      "summary": "Class AnalyticsHeatmap defined in gui.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsHeatmap.__init__",
+      "type": "function",
+      "name": "AnalyticsHeatmap.__init__",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsHeatmap.__init__ in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsHeatmap.set_data",
+      "type": "function",
+      "name": "AnalyticsHeatmap.set_data",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsHeatmap.set_data in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsHeatmap.paintEvent",
+      "type": "function",
+      "name": "AnalyticsHeatmap.paintEvent",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsHeatmap.paintEvent in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:gui.py:AnalyticsPanel",
+      "type": "class",
+      "name": "AnalyticsPanel",
+      "filePath": "gui.py",
+      "summary": "Class AnalyticsPanel defined in gui.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsPanel.__init__",
+      "type": "function",
+      "name": "AnalyticsPanel.__init__",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsPanel.__init__ in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsPanel._init_ui",
+      "type": "function",
+      "name": "AnalyticsPanel._init_ui",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsPanel._init_ui in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsPanel._selected_run_id",
+      "type": "function",
+      "name": "AnalyticsPanel._selected_run_id",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsPanel._selected_run_id in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsPanel.refresh",
+      "type": "function",
+      "name": "AnalyticsPanel.refresh",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsPanel.refresh in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsPanel._refresh_archive",
+      "type": "function",
+      "name": "AnalyticsPanel._refresh_archive",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsPanel._refresh_archive in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsPanel._export_csv",
+      "type": "function",
+      "name": "AnalyticsPanel._export_csv",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsPanel._export_csv in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:AnalyticsPanel._open_report",
+      "type": "function",
+      "name": "AnalyticsPanel._open_report",
+      "filePath": "gui.py",
+      "summary": "Method AnalyticsPanel._open_report in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:gui.py:MainWindow",
+      "type": "class",
+      "name": "MainWindow",
+      "filePath": "gui.py",
+      "summary": "Class MainWindow defined in gui.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow.__init__",
+      "type": "function",
+      "name": "MainWindow.__init__",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow.__init__ in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._randomize_faults",
+      "type": "function",
+      "name": "MainWindow._randomize_faults",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._randomize_faults in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._init_ui",
+      "type": "function",
+      "name": "MainWindow._init_ui",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._init_ui in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._apply_styles",
+      "type": "function",
+      "name": "MainWindow._apply_styles",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._apply_styles in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._on_routing_mode_changed",
+      "type": "function",
+      "name": "MainWindow._on_routing_mode_changed",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._on_routing_mode_changed in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._on_topo_changed",
+      "type": "function",
+      "name": "MainWindow._on_topo_changed",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._on_topo_changed in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._on_timer_tick",
+      "type": "function",
+      "name": "MainWindow._on_timer_tick",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._on_timer_tick in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow.toggle_play",
+      "type": "function",
+      "name": "MainWindow.toggle_play",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow.toggle_play in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._on_speed_changed",
+      "type": "function",
+      "name": "MainWindow._on_speed_changed",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._on_speed_changed in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._on_q_changed",
+      "type": "function",
+      "name": "MainWindow._on_q_changed",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._on_q_changed in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._on_n_changed",
+      "type": "function",
+      "name": "MainWindow._on_n_changed",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._on_n_changed in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._on_slider_moved",
+      "type": "function",
+      "name": "MainWindow._on_slider_moved",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._on_slider_moved in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._on_controller_tick",
+      "type": "function",
+      "name": "MainWindow._on_controller_tick",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._on_controller_tick in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._on_controller_state_change",
+      "type": "function",
+      "name": "MainWindow._on_controller_state_change",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._on_controller_state_change in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._on_controller_reset",
+      "type": "function",
+      "name": "MainWindow._on_controller_reset",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._on_controller_reset in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow.refresh_all",
+      "type": "function",
+      "name": "MainWindow.refresh_all",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow.refresh_all in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow._update_logs",
+      "type": "function",
+      "name": "MainWindow._update_logs",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow._update_logs in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:MainWindow.closeEvent",
+      "type": "function",
+      "name": "MainWindow.closeEvent",
+      "filePath": "gui.py",
+      "summary": "Method MainWindow.closeEvent in gui.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:gui.py:run_gui",
+      "type": "function",
+      "name": "run_gui",
+      "filePath": "gui.py",
+      "summary": "Function run_gui in gui.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "function:main.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "main.py",
+      "summary": "Function main in main.py.",
+      "tags": [
+        "function",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:NeuronState",
+      "type": "class",
+      "name": "NeuronState",
+      "filePath": "models.py",
+      "summary": "Class NeuronState defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:RequestStatus",
+      "type": "class",
+      "name": "RequestStatus",
+      "filePath": "models.py",
+      "summary": "Class RequestStatus defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:PlayState",
+      "type": "class",
+      "name": "PlayState",
+      "filePath": "models.py",
+      "summary": "Class PlayState defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:Request",
+      "type": "class",
+      "name": "Request",
+      "filePath": "models.py",
+      "summary": "Class Request defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Request.__init__",
+      "type": "function",
+      "name": "Request.__init__",
+      "filePath": "models.py",
+      "summary": "Method Request.__init__ in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Request.attach_to_neuron",
+      "type": "function",
+      "name": "Request.attach_to_neuron",
+      "filePath": "models.py",
+      "summary": "Method Request.attach_to_neuron in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Request.mark_completed",
+      "type": "function",
+      "name": "Request.mark_completed",
+      "filePath": "models.py",
+      "summary": "Method Request.mark_completed in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Request.mark_rejected",
+      "type": "function",
+      "name": "Request.mark_rejected",
+      "filePath": "models.py",
+      "summary": "Method Request.mark_rejected in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Request.is_finished",
+      "type": "function",
+      "name": "Request.is_finished",
+      "filePath": "models.py",
+      "summary": "Method Request.is_finished in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Request.is_pipeline_built",
+      "type": "function",
+      "name": "Request.is_pipeline_built",
+      "filePath": "models.py",
+      "summary": "Method Request.is_pipeline_built in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Request.get_path_string",
+      "type": "function",
+      "name": "Request.get_path_string",
+      "filePath": "models.py",
+      "summary": "Method Request.get_path_string in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Request.__repr__",
+      "type": "function",
+      "name": "Request.__repr__",
+      "filePath": "models.py",
+      "summary": "Method Request.__repr__ in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:Neuron",
+      "type": "class",
+      "name": "Neuron",
+      "filePath": "models.py",
+      "summary": "Class Neuron defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Neuron.__init__",
+      "type": "function",
+      "name": "Neuron.__init__",
+      "filePath": "models.py",
+      "summary": "Method Neuron.__init__ in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Neuron.can_accept",
+      "type": "function",
+      "name": "Neuron.can_accept",
+      "filePath": "models.py",
+      "summary": "Method Neuron.can_accept in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Neuron.accept_request",
+      "type": "function",
+      "name": "Neuron.accept_request",
+      "filePath": "models.py",
+      "summary": "Method Neuron.accept_request in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Neuron.finalize_computation",
+      "type": "function",
+      "name": "Neuron.finalize_computation",
+      "filePath": "models.py",
+      "summary": "Method Neuron.finalize_computation in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Neuron.release_aborted",
+      "type": "function",
+      "name": "Neuron.release_aborted",
+      "filePath": "models.py",
+      "summary": "Method Neuron.release_aborted in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Neuron.record_unprocessed",
+      "type": "function",
+      "name": "Neuron.record_unprocessed",
+      "filePath": "models.py",
+      "summary": "Method Neuron.record_unprocessed in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Neuron.toggle_fault",
+      "type": "function",
+      "name": "Neuron.toggle_fault",
+      "filePath": "models.py",
+      "summary": "Method Neuron.toggle_fault in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Neuron.get_display_info",
+      "type": "function",
+      "name": "Neuron.get_display_info",
+      "filePath": "models.py",
+      "summary": "Method Neuron.get_display_info in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:SimulationSnapshot",
+      "type": "class",
+      "name": "SimulationSnapshot",
+      "filePath": "models.py",
+      "summary": "Class SimulationSnapshot defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:BaseArchitecture",
+      "type": "class",
+      "name": "BaseArchitecture",
+      "filePath": "models.py",
+      "summary": "Class BaseArchitecture defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.__init__",
+      "type": "function",
+      "name": "BaseArchitecture.__init__",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.__init__ in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.set_return_to_origin",
+      "type": "function",
+      "name": "BaseArchitecture.set_return_to_origin",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.set_return_to_origin in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.set_generation_ticks",
+      "type": "function",
+      "name": "BaseArchitecture.set_generation_ticks",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.set_generation_ticks in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.input_columns_count",
+      "type": "function",
+      "name": "BaseArchitecture.input_columns_count",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.input_columns_count in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.reset_topology",
+      "type": "function",
+      "name": "BaseArchitecture.reset_topology",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.reset_topology in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.get_candidate_neighbors",
+      "type": "function",
+      "name": "BaseArchitecture.get_candidate_neighbors",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.get_candidate_neighbors in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.get_topology_info",
+      "type": "function",
+      "name": "BaseArchitecture.get_topology_info",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.get_topology_info in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.get_neuron",
+      "type": "function",
+      "name": "BaseArchitecture.get_neuron",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.get_neuron in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.all_neurons",
+      "type": "function",
+      "name": "BaseArchitecture.all_neurons",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.all_neurons in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.is_finished",
+      "type": "function",
+      "name": "BaseArchitecture.is_finished",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.is_finished in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.inject_initial_requests",
+      "type": "function",
+      "name": "BaseArchitecture.inject_initial_requests",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.inject_initial_requests in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.log_event",
+      "type": "function",
+      "name": "BaseArchitecture.log_event",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.log_event in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.truncate_future",
+      "type": "function",
+      "name": "BaseArchitecture.truncate_future",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.truncate_future in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture._record_snapshot",
+      "type": "function",
+      "name": "BaseArchitecture._record_snapshot",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture._record_snapshot in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture._update_current_snapshot",
+      "type": "function",
+      "name": "BaseArchitecture._update_current_snapshot",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture._update_current_snapshot in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture._restore_from_snapshot",
+      "type": "function",
+      "name": "BaseArchitecture._restore_from_snapshot",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture._restore_from_snapshot in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.toggle_neuron_fault",
+      "type": "function",
+      "name": "BaseArchitecture.toggle_neuron_fault",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.toggle_neuron_fault in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.randomize_faults",
+      "type": "function",
+      "name": "BaseArchitecture.randomize_faults",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.randomize_faults in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.schedule_random_faults",
+      "type": "function",
+      "name": "BaseArchitecture.schedule_random_faults",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.schedule_random_faults in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture._apply_scheduled_faults",
+      "type": "function",
+      "name": "BaseArchitecture._apply_scheduled_faults",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture._apply_scheduled_faults in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.step_simulation",
+      "type": "function",
+      "name": "BaseArchitecture.step_simulation",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.step_simulation in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.step_forward",
+      "type": "function",
+      "name": "BaseArchitecture.step_forward",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.step_forward in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.step_backward",
+      "type": "function",
+      "name": "BaseArchitecture.step_backward",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.step_backward in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.fast_forward_to_end",
+      "type": "function",
+      "name": "BaseArchitecture.fast_forward_to_end",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.fast_forward_to_end in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.go_to_history_tick",
+      "type": "function",
+      "name": "BaseArchitecture.go_to_history_tick",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.go_to_history_tick in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:BaseArchitecture.reset",
+      "type": "function",
+      "name": "BaseArchitecture.reset",
+      "filePath": "models.py",
+      "summary": "Method BaseArchitecture.reset in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:ToroidalGridArchitecture",
+      "type": "class",
+      "name": "ToroidalGridArchitecture",
+      "filePath": "models.py",
+      "summary": "Class ToroidalGridArchitecture defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:ToroidalGridArchitecture.__init__",
+      "type": "function",
+      "name": "ToroidalGridArchitecture.__init__",
+      "filePath": "models.py",
+      "summary": "Method ToroidalGridArchitecture.__init__ in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:ToroidalGridArchitecture.input_columns_count",
+      "type": "function",
+      "name": "ToroidalGridArchitecture.input_columns_count",
+      "filePath": "models.py",
+      "summary": "Method ToroidalGridArchitecture.input_columns_count in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:ToroidalGridArchitecture.reset_topology",
+      "type": "function",
+      "name": "ToroidalGridArchitecture.reset_topology",
+      "filePath": "models.py",
+      "summary": "Method ToroidalGridArchitecture.reset_topology in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:ToroidalGridArchitecture.get_candidate_neighbors",
+      "type": "function",
+      "name": "ToroidalGridArchitecture.get_candidate_neighbors",
+      "filePath": "models.py",
+      "summary": "Method ToroidalGridArchitecture.get_candidate_neighbors in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:ToroidalGridArchitecture.get_topology_info",
+      "type": "function",
+      "name": "ToroidalGridArchitecture.get_topology_info",
+      "filePath": "models.py",
+      "summary": "Method ToroidalGridArchitecture.get_topology_info in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:PyramidalArchitecture",
+      "type": "class",
+      "name": "PyramidalArchitecture",
+      "filePath": "models.py",
+      "summary": "Class PyramidalArchitecture defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:PyramidalArchitecture.__init__",
+      "type": "function",
+      "name": "PyramidalArchitecture.__init__",
+      "filePath": "models.py",
+      "summary": "Method PyramidalArchitecture.__init__ in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:PyramidalArchitecture.input_columns_count",
+      "type": "function",
+      "name": "PyramidalArchitecture.input_columns_count",
+      "filePath": "models.py",
+      "summary": "Method PyramidalArchitecture.input_columns_count in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:PyramidalArchitecture.reset_topology",
+      "type": "function",
+      "name": "PyramidalArchitecture.reset_topology",
+      "filePath": "models.py",
+      "summary": "Method PyramidalArchitecture.reset_topology in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:PyramidalArchitecture.get_candidate_neighbors",
+      "type": "function",
+      "name": "PyramidalArchitecture.get_candidate_neighbors",
+      "filePath": "models.py",
+      "summary": "Method PyramidalArchitecture.get_candidate_neighbors in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:PyramidalArchitecture.get_topology_info",
+      "type": "function",
+      "name": "PyramidalArchitecture.get_topology_info",
+      "filePath": "models.py",
+      "summary": "Method PyramidalArchitecture.get_topology_info in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:RhomboidArchitecture",
+      "type": "class",
+      "name": "RhomboidArchitecture",
+      "filePath": "models.py",
+      "summary": "Class RhomboidArchitecture defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:RhomboidArchitecture.__init__",
+      "type": "function",
+      "name": "RhomboidArchitecture.__init__",
+      "filePath": "models.py",
+      "summary": "Method RhomboidArchitecture.__init__ in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:RhomboidArchitecture.input_columns_count",
+      "type": "function",
+      "name": "RhomboidArchitecture.input_columns_count",
+      "filePath": "models.py",
+      "summary": "Method RhomboidArchitecture.input_columns_count in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:RhomboidArchitecture.reset_topology",
+      "type": "function",
+      "name": "RhomboidArchitecture.reset_topology",
+      "filePath": "models.py",
+      "summary": "Method RhomboidArchitecture.reset_topology in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:RhomboidArchitecture.get_candidate_neighbors",
+      "type": "function",
+      "name": "RhomboidArchitecture.get_candidate_neighbors",
+      "filePath": "models.py",
+      "summary": "Method RhomboidArchitecture.get_candidate_neighbors in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:RhomboidArchitecture.get_topology_info",
+      "type": "function",
+      "name": "RhomboidArchitecture.get_topology_info",
+      "filePath": "models.py",
+      "summary": "Method RhomboidArchitecture.get_topology_info in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:Star8Architecture",
+      "type": "class",
+      "name": "Star8Architecture",
+      "filePath": "models.py",
+      "summary": "Class Star8Architecture defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Star8Architecture.__init__",
+      "type": "function",
+      "name": "Star8Architecture.__init__",
+      "filePath": "models.py",
+      "summary": "Method Star8Architecture.__init__ in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Star8Architecture.input_columns_count",
+      "type": "function",
+      "name": "Star8Architecture.input_columns_count",
+      "filePath": "models.py",
+      "summary": "Method Star8Architecture.input_columns_count in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Star8Architecture.reset_topology",
+      "type": "function",
+      "name": "Star8Architecture.reset_topology",
+      "filePath": "models.py",
+      "summary": "Method Star8Architecture.reset_topology in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Star8Architecture.get_candidate_neighbors",
+      "type": "function",
+      "name": "Star8Architecture.get_candidate_neighbors",
+      "filePath": "models.py",
+      "summary": "Method Star8Architecture.get_candidate_neighbors in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Star8Architecture.get_topology_info",
+      "type": "function",
+      "name": "Star8Architecture.get_topology_info",
+      "filePath": "models.py",
+      "summary": "Method Star8Architecture.get_topology_info in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:HoneycombPipelineArchitecture",
+      "type": "class",
+      "name": "HoneycombPipelineArchitecture",
+      "filePath": "models.py",
+      "summary": "Class HoneycombPipelineArchitecture defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:HoneycombPipelineArchitecture.__init__",
+      "type": "function",
+      "name": "HoneycombPipelineArchitecture.__init__",
+      "filePath": "models.py",
+      "summary": "Method HoneycombPipelineArchitecture.__init__ in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:HoneycombPipelineArchitecture.input_columns_count",
+      "type": "function",
+      "name": "HoneycombPipelineArchitecture.input_columns_count",
+      "filePath": "models.py",
+      "summary": "Method HoneycombPipelineArchitecture.input_columns_count in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:HoneycombPipelineArchitecture.reset_topology",
+      "type": "function",
+      "name": "HoneycombPipelineArchitecture.reset_topology",
+      "filePath": "models.py",
+      "summary": "Method HoneycombPipelineArchitecture.reset_topology in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:HoneycombPipelineArchitecture.get_candidate_neighbors",
+      "type": "function",
+      "name": "HoneycombPipelineArchitecture.get_candidate_neighbors",
+      "filePath": "models.py",
+      "summary": "Method HoneycombPipelineArchitecture.get_candidate_neighbors in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:HoneycombPipelineArchitecture.get_topology_info",
+      "type": "function",
+      "name": "HoneycombPipelineArchitecture.get_topology_info",
+      "filePath": "models.py",
+      "summary": "Method HoneycombPipelineArchitecture.get_topology_info in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:SymmetricStar8Architecture",
+      "type": "class",
+      "name": "SymmetricStar8Architecture",
+      "filePath": "models.py",
+      "summary": "Class SymmetricStar8Architecture defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:SymmetricStar8Architecture.__init__",
+      "type": "function",
+      "name": "SymmetricStar8Architecture.__init__",
+      "filePath": "models.py",
+      "summary": "Method SymmetricStar8Architecture.__init__ in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:SymmetricStar8Architecture.input_columns_count",
+      "type": "function",
+      "name": "SymmetricStar8Architecture.input_columns_count",
+      "filePath": "models.py",
+      "summary": "Method SymmetricStar8Architecture.input_columns_count in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:SymmetricStar8Architecture.reset_topology",
+      "type": "function",
+      "name": "SymmetricStar8Architecture.reset_topology",
+      "filePath": "models.py",
+      "summary": "Method SymmetricStar8Architecture.reset_topology in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:SymmetricStar8Architecture.get_candidate_neighbors",
+      "type": "function",
+      "name": "SymmetricStar8Architecture.get_candidate_neighbors",
+      "filePath": "models.py",
+      "summary": "Method SymmetricStar8Architecture.get_candidate_neighbors in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:SymmetricStar8Architecture.get_topology_info",
+      "type": "function",
+      "name": "SymmetricStar8Architecture.get_topology_info",
+      "filePath": "models.py",
+      "summary": "Method SymmetricStar8Architecture.get_topology_info in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:Funnel8Architecture",
+      "type": "class",
+      "name": "Funnel8Architecture",
+      "filePath": "models.py",
+      "summary": "Class Funnel8Architecture defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Funnel8Architecture.__init__",
+      "type": "function",
+      "name": "Funnel8Architecture.__init__",
+      "filePath": "models.py",
+      "summary": "Method Funnel8Architecture.__init__ in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Funnel8Architecture.input_columns_count",
+      "type": "function",
+      "name": "Funnel8Architecture.input_columns_count",
+      "filePath": "models.py",
+      "summary": "Method Funnel8Architecture.input_columns_count in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Funnel8Architecture.reset_topology",
+      "type": "function",
+      "name": "Funnel8Architecture.reset_topology",
+      "filePath": "models.py",
+      "summary": "Method Funnel8Architecture.reset_topology in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Funnel8Architecture.get_candidate_neighbors",
+      "type": "function",
+      "name": "Funnel8Architecture.get_candidate_neighbors",
+      "filePath": "models.py",
+      "summary": "Method Funnel8Architecture.get_candidate_neighbors in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:Funnel8Architecture.get_topology_info",
+      "type": "function",
+      "name": "Funnel8Architecture.get_topology_info",
+      "filePath": "models.py",
+      "summary": "Method Funnel8Architecture.get_topology_info in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:ChordalFunnel8Architecture",
+      "type": "class",
+      "name": "ChordalFunnel8Architecture",
+      "filePath": "models.py",
+      "summary": "Class ChordalFunnel8Architecture defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:ChordalFunnel8Architecture.__init__",
+      "type": "function",
+      "name": "ChordalFunnel8Architecture.__init__",
+      "filePath": "models.py",
+      "summary": "Method ChordalFunnel8Architecture.__init__ in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:ChordalFunnel8Architecture.input_columns_count",
+      "type": "function",
+      "name": "ChordalFunnel8Architecture.input_columns_count",
+      "filePath": "models.py",
+      "summary": "Method ChordalFunnel8Architecture.input_columns_count in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:ChordalFunnel8Architecture.reset_topology",
+      "type": "function",
+      "name": "ChordalFunnel8Architecture.reset_topology",
+      "filePath": "models.py",
+      "summary": "Method ChordalFunnel8Architecture.reset_topology in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:ChordalFunnel8Architecture.get_candidate_neighbors",
+      "type": "function",
+      "name": "ChordalFunnel8Architecture.get_candidate_neighbors",
+      "filePath": "models.py",
+      "summary": "Method ChordalFunnel8Architecture.get_candidate_neighbors in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:models.py:ChordalFunnel8Architecture.get_topology_info",
+      "type": "function",
+      "name": "ChordalFunnel8Architecture.get_topology_info",
+      "filePath": "models.py",
+      "summary": "Method ChordalFunnel8Architecture.get_topology_info in models.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "class:models.py:SimulationEngine",
+      "type": "class",
+      "name": "SimulationEngine",
+      "filePath": "models.py",
+      "summary": "Class SimulationEngine defined in models.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "class:test_simulation.py:TestSimulation",
+      "type": "class",
+      "name": "TestSimulation",
+      "filePath": "test_simulation.py",
+      "summary": "Class TestSimulation defined in test_simulation.py.",
+      "tags": [
+        "class",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_base_architecture_is_abstract",
+      "type": "function",
+      "name": "TestSimulation.test_base_architecture_is_abstract",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_base_architecture_is_abstract in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_lifetime_formula",
+      "type": "function",
+      "name": "TestSimulation.test_lifetime_formula",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_lifetime_formula in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_pipeline_decrements_q",
+      "type": "function",
+      "name": "TestSimulation.test_pipeline_decrements_q",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_pipeline_decrements_q in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_return_to_origin_column",
+      "type": "function",
+      "name": "TestSimulation.test_return_to_origin_column",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_return_to_origin_column in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_torus_6x6_default",
+      "type": "function",
+      "name": "TestSimulation.test_torus_6x6_default",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_torus_6x6_default in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_torus_wrap_only_horizontal",
+      "type": "function",
+      "name": "TestSimulation.test_torus_wrap_only_horizontal",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_torus_wrap_only_horizontal in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_mvc_controller_separation",
+      "type": "function",
+      "name": "TestSimulation.test_mvc_controller_separation",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_mvc_controller_separation in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_rhomboid_architecture",
+      "type": "function",
+      "name": "TestSimulation.test_rhomboid_architecture",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_rhomboid_architecture in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_star8_architecture",
+      "type": "function",
+      "name": "TestSimulation.test_star8_architecture",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_star8_architecture in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_honeycomb_architecture",
+      "type": "function",
+      "name": "TestSimulation.test_honeycomb_architecture",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_honeycomb_architecture in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_symmetric_star8_architecture",
+      "type": "function",
+      "name": "TestSimulation.test_symmetric_star8_architecture",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_symmetric_star8_architecture in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_controller_architecture_switching",
+      "type": "function",
+      "name": "TestSimulation.test_controller_architecture_switching",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_controller_architecture_switching in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_memento_time_travel",
+      "type": "function",
+      "name": "TestSimulation.test_memento_time_travel",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_memento_time_travel in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_simulation_controller",
+      "type": "function",
+      "name": "TestSimulation.test_simulation_controller",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_simulation_controller in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_funnel8_architecture_fault_tolerance",
+      "type": "function",
+      "name": "TestSimulation.test_funnel8_architecture_fault_tolerance",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_funnel8_architecture_fault_tolerance in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_chordal_funnel8_architecture_fault_tolerance",
+      "type": "function",
+      "name": "TestSimulation.test_chordal_funnel8_architecture_fault_tolerance",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_chordal_funnel8_architecture_fault_tolerance in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_backwards_compatibility_simulation_engine",
+      "type": "function",
+      "name": "TestSimulation.test_backwards_compatibility_simulation_engine",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_backwards_compatibility_simulation_engine in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_gui_headless_switching",
+      "type": "function",
+      "name": "TestSimulation.test_gui_headless_switching",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_gui_headless_switching in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_analytics_recorder_persists_detailed_state",
+      "type": "function",
+      "name": "TestSimulation.test_analytics_recorder_persists_detailed_state",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_analytics_recorder_persists_detailed_state in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_analytics_branch_keeps_history_indices",
+      "type": "function",
+      "name": "TestSimulation.test_analytics_branch_keeps_history_indices",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_analytics_branch_keeps_history_indices in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_scheduled_random_faults_apply_during_execution",
+      "type": "function",
+      "name": "TestSimulation.test_scheduled_random_faults_apply_during_execution",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_scheduled_random_faults_apply_during_execution in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_analytics_request_duration_and_fault_metrics",
+      "type": "function",
+      "name": "TestSimulation.test_analytics_request_duration_and_fault_metrics",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_analytics_request_duration_and_fault_metrics in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_neuron_invulnerability_during_request_processing",
+      "type": "function",
+      "name": "TestSimulation.test_neuron_invulnerability_during_request_processing",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_neuron_invulnerability_during_request_processing in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_neuron_invulnerability_cancellation",
+      "type": "function",
+      "name": "TestSimulation.test_neuron_invulnerability_cancellation",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_neuron_invulnerability_cancellation in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_neuron_invulnerability_on_rejected_request",
+      "type": "function",
+      "name": "TestSimulation.test_neuron_invulnerability_on_rejected_request",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_neuron_invulnerability_on_rejected_request in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_random_fault_preserves_busy_request_and_records_event",
+      "type": "function",
+      "name": "TestSimulation.test_random_fault_preserves_busy_request_and_records_event",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_random_fault_preserves_busy_request_and_records_event in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_random_fault_truncates_future_history",
+      "type": "function",
+      "name": "TestSimulation.test_random_fault_truncates_future_history",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_random_fault_truncates_future_history in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_random_fault_zero_probability_is_noop",
+      "type": "function",
+      "name": "TestSimulation.test_random_fault_zero_probability_is_noop",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_random_fault_zero_probability_is_noop in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_generation_ticks_custom",
+      "type": "function",
+      "name": "TestSimulation.test_generation_ticks_custom",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_generation_ticks_custom in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_routing_mode_downward_without_return_torus",
+      "type": "function",
+      "name": "TestSimulation.test_routing_mode_downward_without_return_torus",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_routing_mode_downward_without_return_torus in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_pyramidal_architecture_and_modes",
+      "type": "function",
+      "name": "TestSimulation.test_pyramidal_architecture_and_modes",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_pyramidal_architecture_and_modes in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    },
+    {
+      "id": "function:test_simulation.py:TestSimulation.test_rhomboid_architecture_modes",
+      "type": "function",
+      "name": "TestSimulation.test_rhomboid_architecture_modes",
+      "filePath": "test_simulation.py",
+      "summary": "Method TestSimulation.test_rhomboid_architecture_modes in test_simulation.py.",
+      "tags": [
+        "method",
+        "python"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:analytics_db.py",
+      "target": "class:analytics_db.py:AnalyticsRecorder",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder._backfill_legacy_metrics",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.clear",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.start_run",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.update_run_metadata",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder._write_topology",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.record_action",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.record_snapshot",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder._refresh_request_metrics",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder._percentile",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder._refresh_run_metrics",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder._current_history_index",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.latest_run_id",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.get_run_summary",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.list_runs",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.get_tick_metrics",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.get_event_counts",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.get_request_outcomes",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.get_neuron_heatmap",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.export_csv",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.close",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.__enter__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:analytics_db.py:AnalyticsRecorder",
+      "target": "function:analytics_db.py:AnalyticsRecorder.__exit__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:_plain",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:_json",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:_address",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:_now",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:_connect",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:export_architecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:event_counts",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:main",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:_plain",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:_json",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:_address",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:_now",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:_connect",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "class:analytics_db.py:AnalyticsRecorder",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:export_architecture",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:event_counts",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:analytics_db.py",
+      "target": "function:analytics_db.py:main",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:_json",
+      "target": "function:analytics_db.py:_plain",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder.__init__",
+      "target": "function:analytics_db.py:_connect",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder._backfill_legacy_metrics",
+      "target": "function:analytics_db.py:_now",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder.start_run",
+      "target": "function:analytics_db.py:_plain",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder.start_run",
+      "target": "function:analytics_db.py:_now",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder.start_run",
+      "target": "function:analytics_db.py:_json",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder._write_topology",
+      "target": "function:analytics_db.py:_address",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder._write_topology",
+      "target": "function:analytics_db.py:_json",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder.record_action",
+      "target": "function:analytics_db.py:_json",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder.record_action",
+      "target": "function:analytics_db.py:_now",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder.record_snapshot",
+      "target": "function:analytics_db.py:_plain",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder.record_snapshot",
+      "target": "function:analytics_db.py:_json",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder.record_snapshot",
+      "target": "function:analytics_db.py:_address",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder.record_snapshot",
+      "target": "function:analytics_db.py:_now",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder._refresh_request_metrics",
+      "target": "function:analytics_db.py:_plain",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder._refresh_request_metrics",
+      "target": "function:analytics_db.py:_json",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:AnalyticsRecorder._refresh_run_metrics",
+      "target": "function:analytics_db.py:_now",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:export_architecture",
+      "target": "class:analytics_db.py:AnalyticsRecorder",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:event_counts",
+      "target": "class:analytics_db.py:AnalyticsRecorder",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_db.py:main",
+      "target": "class:analytics_db.py:AnalyticsRecorder",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:analytics_report.py",
+      "target": "function:analytics_report.py:_json_script",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_report.py",
+      "target": "function:analytics_report.py:load_report_data",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_report.py",
+      "target": "function:analytics_report.py:render_report",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_report.py",
+      "target": "function:analytics_report.py:generate_report",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_report.py",
+      "target": "function:analytics_report.py:main",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:analytics_report.py",
+      "target": "function:analytics_report.py:_json_script",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:analytics_report.py",
+      "target": "function:analytics_report.py:load_report_data",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:analytics_report.py",
+      "target": "function:analytics_report.py:render_report",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:analytics_report.py",
+      "target": "function:analytics_report.py:generate_report",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:analytics_report.py",
+      "target": "function:analytics_report.py:main",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_report.py:render_report",
+      "target": "function:analytics_report.py:_json_script",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_report.py:generate_report",
+      "target": "function:analytics_report.py:render_report",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_report.py:generate_report",
+      "target": "function:analytics_report.py:load_report_data",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:analytics_report.py:main",
+      "target": "function:analytics_report.py:generate_report",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:controller.py",
+      "target": "class:controller.py:SimulationController",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.current_tick",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.architecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.subscribe",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.notify",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.set_architecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.play",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.pause",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.toggle_play",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.step_forward",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.step_backward",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.fast_forward",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.go_to_tick",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.reset",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.toggle_fault",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.randomize_faults",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.schedule_random_faults",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.set_speed",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.set_return_to_origin",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.set_generation_ticks",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:controller.py:SimulationController",
+      "target": "function:controller.py:SimulationController.get_kpi",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:controller.py",
+      "target": "class:controller.py:SimulationController",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:controller.py",
+      "target": "file:models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:generate_analytics.py",
+      "target": "function:generate_analytics.py:_factories",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:generate_analytics.py",
+      "target": "function:generate_analytics.py:_record_until_finished",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:generate_analytics.py",
+      "target": "function:generate_analytics.py:_fault_address",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:generate_analytics.py",
+      "target": "function:generate_analytics.py:generate",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:generate_analytics.py",
+      "target": "function:generate_analytics.py:main",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:generate_analytics.py",
+      "target": "function:generate_analytics.py:_factories",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:generate_analytics.py",
+      "target": "function:generate_analytics.py:_record_until_finished",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:generate_analytics.py",
+      "target": "function:generate_analytics.py:_fault_address",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:generate_analytics.py",
+      "target": "function:generate_analytics.py:generate",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:generate_analytics.py",
+      "target": "function:generate_analytics.py:main",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "function:generate_analytics.py:generate",
+      "target": "function:generate_analytics.py:_factories",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:generate_analytics.py:generate",
+      "target": "function:generate_analytics.py:_record_until_finished",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:generate_analytics.py:generate",
+      "target": "function:generate_analytics.py:_fault_address",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:generate_analytics.py:main",
+      "target": "function:generate_analytics.py:generate",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:generate_analytics.py",
+      "target": "file:analytics_db.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:generate_analytics.py",
+      "target": "file:models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:generate_analytics.py",
+      "target": "file:controller.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:NeuronButton",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:NeuronButton",
+      "target": "function:gui.py:NeuronButton.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:NeuronButton",
+      "target": "function:gui.py:NeuronButton.update_view",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:NeuronButton",
+      "target": "function:gui.py:NeuronButton._hex_to_rgba",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:TopologyCanvasWidget",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:TopologyCanvasWidget",
+      "target": "function:gui.py:TopologyCanvasWidget.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:TopologyCanvasWidget",
+      "target": "function:gui.py:TopologyCanvasWidget.set_controller",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:TopologyCanvasWidget",
+      "target": "function:gui.py:TopologyCanvasWidget.rebuild_canvas",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:TopologyCanvasWidget",
+      "target": "function:gui.py:TopologyCanvasWidget.resizeEvent",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:TopologyCanvasWidget",
+      "target": "function:gui.py:TopologyCanvasWidget._calculate_positions",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:TopologyCanvasWidget",
+      "target": "function:gui.py:TopologyCanvasWidget.paintEvent",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:TopologyCanvasWidget",
+      "target": "function:gui.py:TopologyCanvasWidget.refresh_views",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:AnalyticsLineChart",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsLineChart",
+      "target": "function:gui.py:AnalyticsLineChart.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsLineChart",
+      "target": "function:gui.py:AnalyticsLineChart.set_data",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsLineChart",
+      "target": "function:gui.py:AnalyticsLineChart.paintEvent",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:AnalyticsBarChart",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsBarChart",
+      "target": "function:gui.py:AnalyticsBarChart.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsBarChart",
+      "target": "function:gui.py:AnalyticsBarChart.set_data",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsBarChart",
+      "target": "function:gui.py:AnalyticsBarChart.paintEvent",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:AnalyticsHeatmap",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsHeatmap",
+      "target": "function:gui.py:AnalyticsHeatmap.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsHeatmap",
+      "target": "function:gui.py:AnalyticsHeatmap.set_data",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsHeatmap",
+      "target": "function:gui.py:AnalyticsHeatmap.paintEvent",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:AnalyticsPanel",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsPanel",
+      "target": "function:gui.py:AnalyticsPanel.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsPanel",
+      "target": "function:gui.py:AnalyticsPanel._init_ui",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsPanel",
+      "target": "function:gui.py:AnalyticsPanel._selected_run_id",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsPanel",
+      "target": "function:gui.py:AnalyticsPanel.refresh",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsPanel",
+      "target": "function:gui.py:AnalyticsPanel._refresh_archive",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsPanel",
+      "target": "function:gui.py:AnalyticsPanel._export_csv",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:AnalyticsPanel",
+      "target": "function:gui.py:AnalyticsPanel._open_report",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:MainWindow",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._randomize_faults",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._init_ui",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._apply_styles",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._on_routing_mode_changed",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._on_topo_changed",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._on_timer_tick",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow.toggle_play",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._on_speed_changed",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._on_q_changed",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._on_n_changed",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._on_slider_moved",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._on_controller_tick",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._on_controller_state_change",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._on_controller_reset",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow.refresh_all",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow._update_logs",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:gui.py:MainWindow",
+      "target": "function:gui.py:MainWindow.closeEvent",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:gui.py",
+      "target": "function:gui.py:run_gui",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:NeuronButton",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:TopologyCanvasWidget",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:AnalyticsLineChart",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:AnalyticsBarChart",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:AnalyticsHeatmap",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:AnalyticsPanel",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:gui.py",
+      "target": "class:gui.py:MainWindow",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:gui.py",
+      "target": "function:gui.py:run_gui",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "function:gui.py:TopologyCanvasWidget.rebuild_canvas",
+      "target": "class:gui.py:NeuronButton",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:gui.py:AnalyticsPanel._init_ui",
+      "target": "class:gui.py:AnalyticsLineChart",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:gui.py:AnalyticsPanel._init_ui",
+      "target": "class:gui.py:AnalyticsBarChart",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:gui.py:AnalyticsPanel._init_ui",
+      "target": "class:gui.py:AnalyticsHeatmap",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:gui.py:AnalyticsPanel._init_ui",
+      "target": "class:gui.py:TopologyCanvasWidget",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:gui.py:AnalyticsPanel._init_ui",
+      "target": "class:gui.py:AnalyticsPanel",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:gui.py:run_gui",
+      "target": "class:gui.py:MainWindow",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:gui.py",
+      "target": "file:models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:gui.py",
+      "target": "file:controller.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:gui.py",
+      "target": "file:analytics_db.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:gui.py",
+      "target": "file:analytics_report.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:main.py",
+      "target": "function:main.py:main",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:main.py",
+      "target": "function:main.py:main",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:main.py",
+      "target": "file:gui.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:NeuronState",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:RequestStatus",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:PlayState",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:Request",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Request",
+      "target": "function:models.py:Request.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Request",
+      "target": "function:models.py:Request.attach_to_neuron",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Request",
+      "target": "function:models.py:Request.mark_completed",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Request",
+      "target": "function:models.py:Request.mark_rejected",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Request",
+      "target": "function:models.py:Request.is_finished",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Request",
+      "target": "function:models.py:Request.is_pipeline_built",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Request",
+      "target": "function:models.py:Request.get_path_string",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Request",
+      "target": "function:models.py:Request.__repr__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:Neuron",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Neuron",
+      "target": "function:models.py:Neuron.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Neuron",
+      "target": "function:models.py:Neuron.can_accept",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Neuron",
+      "target": "function:models.py:Neuron.accept_request",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Neuron",
+      "target": "function:models.py:Neuron.finalize_computation",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Neuron",
+      "target": "function:models.py:Neuron.release_aborted",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Neuron",
+      "target": "function:models.py:Neuron.record_unprocessed",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Neuron",
+      "target": "function:models.py:Neuron.toggle_fault",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Neuron",
+      "target": "function:models.py:Neuron.get_display_info",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:SimulationSnapshot",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:BaseArchitecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.set_return_to_origin",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.set_generation_ticks",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.input_columns_count",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.reset_topology",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.get_candidate_neighbors",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.get_topology_info",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.get_neuron",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.all_neurons",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.is_finished",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.inject_initial_requests",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.log_event",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.truncate_future",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture._record_snapshot",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture._update_current_snapshot",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture._restore_from_snapshot",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.toggle_neuron_fault",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.randomize_faults",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.schedule_random_faults",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture._apply_scheduled_faults",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.step_simulation",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.step_forward",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.step_backward",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.fast_forward_to_end",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.go_to_history_tick",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:BaseArchitecture",
+      "target": "function:models.py:BaseArchitecture.reset",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:ToroidalGridArchitecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:ToroidalGridArchitecture",
+      "target": "function:models.py:ToroidalGridArchitecture.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:ToroidalGridArchitecture",
+      "target": "function:models.py:ToroidalGridArchitecture.input_columns_count",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:ToroidalGridArchitecture",
+      "target": "function:models.py:ToroidalGridArchitecture.reset_topology",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:ToroidalGridArchitecture",
+      "target": "function:models.py:ToroidalGridArchitecture.get_candidate_neighbors",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:ToroidalGridArchitecture",
+      "target": "function:models.py:ToroidalGridArchitecture.get_topology_info",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:PyramidalArchitecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:PyramidalArchitecture",
+      "target": "function:models.py:PyramidalArchitecture.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:PyramidalArchitecture",
+      "target": "function:models.py:PyramidalArchitecture.input_columns_count",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:PyramidalArchitecture",
+      "target": "function:models.py:PyramidalArchitecture.reset_topology",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:PyramidalArchitecture",
+      "target": "function:models.py:PyramidalArchitecture.get_candidate_neighbors",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:PyramidalArchitecture",
+      "target": "function:models.py:PyramidalArchitecture.get_topology_info",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:RhomboidArchitecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:RhomboidArchitecture",
+      "target": "function:models.py:RhomboidArchitecture.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:RhomboidArchitecture",
+      "target": "function:models.py:RhomboidArchitecture.input_columns_count",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:RhomboidArchitecture",
+      "target": "function:models.py:RhomboidArchitecture.reset_topology",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:RhomboidArchitecture",
+      "target": "function:models.py:RhomboidArchitecture.get_candidate_neighbors",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:RhomboidArchitecture",
+      "target": "function:models.py:RhomboidArchitecture.get_topology_info",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:Star8Architecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Star8Architecture",
+      "target": "function:models.py:Star8Architecture.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Star8Architecture",
+      "target": "function:models.py:Star8Architecture.input_columns_count",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Star8Architecture",
+      "target": "function:models.py:Star8Architecture.reset_topology",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Star8Architecture",
+      "target": "function:models.py:Star8Architecture.get_candidate_neighbors",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Star8Architecture",
+      "target": "function:models.py:Star8Architecture.get_topology_info",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:HoneycombPipelineArchitecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:HoneycombPipelineArchitecture",
+      "target": "function:models.py:HoneycombPipelineArchitecture.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:HoneycombPipelineArchitecture",
+      "target": "function:models.py:HoneycombPipelineArchitecture.input_columns_count",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:HoneycombPipelineArchitecture",
+      "target": "function:models.py:HoneycombPipelineArchitecture.reset_topology",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:HoneycombPipelineArchitecture",
+      "target": "function:models.py:HoneycombPipelineArchitecture.get_candidate_neighbors",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:HoneycombPipelineArchitecture",
+      "target": "function:models.py:HoneycombPipelineArchitecture.get_topology_info",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:SymmetricStar8Architecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:SymmetricStar8Architecture",
+      "target": "function:models.py:SymmetricStar8Architecture.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:SymmetricStar8Architecture",
+      "target": "function:models.py:SymmetricStar8Architecture.input_columns_count",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:SymmetricStar8Architecture",
+      "target": "function:models.py:SymmetricStar8Architecture.reset_topology",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:SymmetricStar8Architecture",
+      "target": "function:models.py:SymmetricStar8Architecture.get_candidate_neighbors",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:SymmetricStar8Architecture",
+      "target": "function:models.py:SymmetricStar8Architecture.get_topology_info",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:Funnel8Architecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Funnel8Architecture",
+      "target": "function:models.py:Funnel8Architecture.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Funnel8Architecture",
+      "target": "function:models.py:Funnel8Architecture.input_columns_count",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Funnel8Architecture",
+      "target": "function:models.py:Funnel8Architecture.reset_topology",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Funnel8Architecture",
+      "target": "function:models.py:Funnel8Architecture.get_candidate_neighbors",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:Funnel8Architecture",
+      "target": "function:models.py:Funnel8Architecture.get_topology_info",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:ChordalFunnel8Architecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:ChordalFunnel8Architecture",
+      "target": "function:models.py:ChordalFunnel8Architecture.__init__",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:ChordalFunnel8Architecture",
+      "target": "function:models.py:ChordalFunnel8Architecture.input_columns_count",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:ChordalFunnel8Architecture",
+      "target": "function:models.py:ChordalFunnel8Architecture.reset_topology",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:ChordalFunnel8Architecture",
+      "target": "function:models.py:ChordalFunnel8Architecture.get_candidate_neighbors",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:models.py:ChordalFunnel8Architecture",
+      "target": "function:models.py:ChordalFunnel8Architecture.get_topology_info",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:SimulationEngine",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:NeuronState",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:RequestStatus",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:PlayState",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:Request",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:Neuron",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:SimulationSnapshot",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:BaseArchitecture",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:ToroidalGridArchitecture",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:PyramidalArchitecture",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:RhomboidArchitecture",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:Star8Architecture",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:HoneycombPipelineArchitecture",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:SymmetricStar8Architecture",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:Funnel8Architecture",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:ChordalFunnel8Architecture",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:SimulationEngine",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "function:models.py:BaseArchitecture.inject_initial_requests",
+      "target": "class:models.py:Request",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:models.py:BaseArchitecture._record_snapshot",
+      "target": "class:models.py:SimulationSnapshot",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:models.py:BaseArchitecture._update_current_snapshot",
+      "target": "class:models.py:SimulationSnapshot",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:models.py:BaseArchitecture.reset_topology",
+      "target": "class:models.py:Neuron",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "file:controller.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:test_simulation.py",
+      "target": "class:test_simulation.py:TestSimulation",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_base_architecture_is_abstract",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_lifetime_formula",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_pipeline_decrements_q",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_return_to_origin_column",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_torus_6x6_default",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_torus_wrap_only_horizontal",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_mvc_controller_separation",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_rhomboid_architecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_star8_architecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_honeycomb_architecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_symmetric_star8_architecture",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_controller_architecture_switching",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_memento_time_travel",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_simulation_controller",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_funnel8_architecture_fault_tolerance",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_chordal_funnel8_architecture_fault_tolerance",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_backwards_compatibility_simulation_engine",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_gui_headless_switching",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_analytics_recorder_persists_detailed_state",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_analytics_branch_keeps_history_indices",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_scheduled_random_faults_apply_during_execution",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_analytics_request_duration_and_fault_metrics",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_neuron_invulnerability_during_request_processing",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_neuron_invulnerability_cancellation",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_neuron_invulnerability_on_rejected_request",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_random_fault_preserves_busy_request_and_records_event",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_random_fault_truncates_future_history",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_random_fault_zero_probability_is_noop",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_generation_ticks_custom",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_routing_mode_downward_without_return_torus",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_pyramidal_architecture_and_modes",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "class:test_simulation.py:TestSimulation",
+      "target": "function:test_simulation.py:TestSimulation.test_rhomboid_architecture_modes",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:test_simulation.py",
+      "target": "class:test_simulation.py:TestSimulation",
+      "type": "exports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:test_simulation.py",
+      "target": "file:models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:test_simulation.py",
+      "target": "file:controller.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:test_simulation.py",
+      "target": "file:analytics_db.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:test_simulation.py",
+      "target": "file:gui.py",
+      "type": "imports",
+      "weight": 0.7
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:ui",
+      "name": "UI",
+      "description": "PySide6 presentation and entry point",
+      "nodeIds": [
+        "file:gui.py",
+        "file:main.py"
+      ]
+    },
+    {
+      "id": "layer:model",
+      "name": "Simulation model",
+      "description": "Neuron, request, history, and topology implementations",
+      "nodeIds": [
+        "file:models.py"
+      ]
+    },
+    {
+      "id": "layer:controller",
+      "name": "Controller",
+      "description": "MVC orchestration and simulation playback",
+      "nodeIds": [
+        "file:controller.py"
+      ]
+    },
+    {
+      "id": "layer:analytics",
+      "name": "Analytics",
+      "description": "Persistent SQLite analytics, reports, and experiment generation",
+      "nodeIds": [
+        "file:analytics_db.py",
+        "file:analytics_report.py",
+        "file:generate_analytics.py"
+      ]
+    },
+    {
+      "id": "layer:quality",
+      "name": "Quality",
+      "description": "Tests and regression checks",
+      "nodeIds": [
+        "file:test_simulation.py"
+      ]
+    },
+    {
+      "id": "layer:docs",
+      "name": "Documentation",
+      "description": "Project instructions and usage documentation",
+      "nodeIds": [
+        "document:README.md",
+        "document:GEMINI.md",
+        "config:skills-lock.json"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Project purpose and instructions",
+      "description": "Read the project README and mgi-mind instruction before changing the simulator.",
+      "nodeIds": [
+        "document:GEMINI.md",
+        "document:README.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Simulation model",
+      "description": "Follow requests, neuron states, Memento snapshots, routing, and topology classes.",
+      "nodeIds": [
+        "file:models.py"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Controller and desktop UI",
+      "description": "See how playback and fault actions reach the PySide6 visualization.",
+      "nodeIds": [
+        "file:controller.py",
+        "file:gui.py",
+        "file:main.py"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Persistent experiment analytics",
+      "description": "Inspect how runs, request durations, fault events, neuron snapshots, and aggregates are stored and visualized.",
+      "nodeIds": [
+        "file:analytics_db.py",
+        "file:analytics_report.py",
+        "file:generate_analytics.py"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Regression coverage",
+      "description": "Run the routing, history, GUI, analytics, and scheduled-fault tests.",
+      "nodeIds": [
+        "file:test_simulation.py"
+      ]
+    }
+  ]
+}

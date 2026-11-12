@@ -1,0 +1,1167 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "09a6cf932948be74ab4a9326d026e4c9a7caf995",
+  "generatedAt": "2026-11-12T19:37:03.084Z",
+  "files": {
+    "GEMINI.md": {
+      "filePath": "GEMINI.md",
+      "contentHash": "f1efa801ec73edbcc0e29d4d775fa28e837c31c9f453b6321df5c4942f8ceb2d",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 7,
+      "hasStructuralAnalysis": false
+    },
+    "README.md": {
+      "filePath": "README.md",
+      "contentHash": "236a9fd099f783d0982b01ca6526f594940e0f2f7b5f982ecf8c11446ed94a3c",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 70,
+      "hasStructuralAnalysis": false
+    },
+    "analytics_db.py": {
+      "filePath": "analytics_db.py",
+      "contentHash": "881368181c84cda8225edb3482b162b20506a22f5bc88ba521bf2a56fee66470",
+      "functions": [
+        {
+          "name": "_plain",
+          "params": [
+            "value"
+          ],
+          "returnType": "Any",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "_json",
+          "params": [
+            "value"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "_address",
+          "params": [
+            "value"
+          ],
+          "returnType": "tuple[Optional[int], Optional[int]]",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "_now",
+          "params": [],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "_connect",
+          "params": [
+            "path"
+          ],
+          "returnType": "sqlite3.Connection",
+          "exported": true,
+          "lineCount": 33
+        },
+        {
+          "name": "export_architecture",
+          "params": [
+            "architecture",
+            "db_path",
+            "replace"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "event_counts",
+          "params": [
+            "db_path",
+            "run_id"
+          ],
+          "returnType": "list[tuple[str, int]]",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "main",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 14
+        }
+      ],
+      "classes": [
+        {
+          "name": "AnalyticsRecorder",
+          "methods": [
+            "__init__",
+            "_backfill_legacy_metrics",
+            "clear",
+            "start_run",
+            "update_run_metadata",
+            "_write_topology",
+            "record_action",
+            "record_snapshot",
+            "_refresh_request_metrics",
+            "_percentile",
+            "_refresh_run_metrics",
+            "_current_history_index",
+            "latest_run_id",
+            "get_run_summary",
+            "list_runs",
+            "get_tick_metrics",
+            "get_event_counts",
+            "get_request_outcomes",
+            "get_neuron_heatmap",
+            "export_csv",
+            "close",
+            "__enter__",
+            "__exit__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 683
+        }
+      ],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "csv",
+          "specifiers": [
+            "csv"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "sqlite3",
+          "specifiers": [
+            "sqlite3"
+          ]
+        },
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "asdict",
+            "is_dataclass"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "datetime",
+            "timezone"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any",
+            "Optional"
+          ]
+        }
+      ],
+      "exports": [
+        "_plain",
+        "_json",
+        "_address",
+        "_now",
+        "_connect",
+        "AnalyticsRecorder",
+        "export_architecture",
+        "event_counts",
+        "main"
+      ],
+      "totalLines": 982,
+      "hasStructuralAnalysis": true
+    },
+    "analytics_report.py": {
+      "filePath": "analytics_report.py",
+      "contentHash": "58eca4a43c495340b6103a2fb364f665333ed5ec5cde61155f449a2c06e8e096",
+      "functions": [
+        {
+          "name": "_json_script",
+          "params": [
+            "value"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "load_report_data",
+          "params": [
+            "db_path"
+          ],
+          "returnType": "dict[str, Any]",
+          "exported": true,
+          "lineCount": 99
+        },
+        {
+          "name": "render_report",
+          "params": [
+            "data"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 77
+        },
+        {
+          "name": "generate_report",
+          "params": [
+            "db_path",
+            "output"
+          ],
+          "returnType": "Path",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "main",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "sqlite3",
+          "specifiers": [
+            "sqlite3"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "datetime",
+            "timezone"
+          ]
+        },
+        {
+          "source": "html",
+          "specifiers": [
+            "escape"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any"
+          ]
+        }
+      ],
+      "exports": [
+        "_json_script",
+        "load_report_data",
+        "render_report",
+        "generate_report",
+        "main"
+      ],
+      "totalLines": 216,
+      "hasStructuralAnalysis": true
+    },
+    "controller.py": {
+      "filePath": "controller.py",
+      "contentHash": "f61bcfe64b97d50e64a76818b6047c7c2a23ad9111ba69edff888fd2216946e2",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SimulationController",
+          "methods": [
+            "__init__",
+            "current_tick",
+            "architecture",
+            "subscribe",
+            "notify",
+            "set_architecture",
+            "play",
+            "pause",
+            "toggle_play",
+            "step_forward",
+            "step_backward",
+            "fast_forward",
+            "go_to_tick",
+            "reset",
+            "toggle_fault",
+            "randomize_faults",
+            "schedule_random_faults",
+            "set_speed",
+            "set_return_to_origin",
+            "set_generation_ticks",
+            "get_kpi"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 130
+        }
+      ],
+      "imports": [
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any",
+            "Callable",
+            "Dict",
+            "List",
+            "Optional"
+          ]
+        },
+        {
+          "source": "models",
+          "specifiers": [
+            "BaseArchitecture",
+            "PlayState",
+            "RequestStatus"
+          ]
+        }
+      ],
+      "exports": [
+        "SimulationController"
+      ],
+      "totalLines": 142,
+      "hasStructuralAnalysis": true
+    },
+    "generate_analytics.py": {
+      "filePath": "generate_analytics.py",
+      "contentHash": "c95a87ebddcd17611f580f9433978476ce77a4dc0fb824d7cedfbc852f0edc0a",
+      "functions": [
+        {
+          "name": "_factories",
+          "params": [],
+          "returnType": "list[tuple[str, Factory]]",
+          "exported": true,
+          "lineCount": 60
+        },
+        {
+          "name": "_record_until_finished",
+          "params": [
+            "controller",
+            "recorder",
+            "max_ticks"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "_fault_address",
+          "params": [
+            "architecture"
+          ],
+          "returnType": "tuple[int, int] | None",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "generate",
+          "params": [
+            "db_path",
+            "replace"
+          ],
+          "returnType": "list[dict[str, int | str]]",
+          "exported": true,
+          "lineCount": 76
+        },
+        {
+          "name": "main",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 12
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Callable"
+          ]
+        },
+        {
+          "source": "analytics_db",
+          "specifiers": [
+            "AnalyticsRecorder"
+          ]
+        },
+        {
+          "source": "models",
+          "specifiers": [
+            "BaseArchitecture",
+            "ChordalFunnel8Architecture",
+            "Funnel8Architecture",
+            "HoneycombPipelineArchitecture",
+            "PyramidalArchitecture",
+            "RhomboidArchitecture",
+            "Star8Architecture",
+            "SymmetricStar8Architecture",
+            "ToroidalGridArchitecture"
+          ]
+        },
+        {
+          "source": "controller",
+          "specifiers": [
+            "SimulationController"
+          ]
+        }
+      ],
+      "exports": [
+        "_factories",
+        "_record_until_finished",
+        "_fault_address",
+        "generate",
+        "main"
+      ],
+      "totalLines": 214,
+      "hasStructuralAnalysis": true
+    },
+    "gui.py": {
+      "filePath": "gui.py",
+      "contentHash": "35b3ca6d51f8df2ead72a9989ff55096ed09e6b97ef468f2b43baeee042a2cad",
+      "functions": [
+        {
+          "name": "run_gui",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [
+        {
+          "name": "NeuronButton",
+          "methods": [
+            "__init__",
+            "update_view",
+            "_hex_to_rgba"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 101
+        },
+        {
+          "name": "TopologyCanvasWidget",
+          "methods": [
+            "__init__",
+            "set_controller",
+            "rebuild_canvas",
+            "resizeEvent",
+            "_calculate_positions",
+            "paintEvent",
+            "refresh_views"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 165
+        },
+        {
+          "name": "AnalyticsLineChart",
+          "methods": [
+            "__init__",
+            "set_data",
+            "paintEvent"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 62
+        },
+        {
+          "name": "AnalyticsBarChart",
+          "methods": [
+            "__init__",
+            "set_data",
+            "paintEvent"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 37
+        },
+        {
+          "name": "AnalyticsHeatmap",
+          "methods": [
+            "__init__",
+            "set_data",
+            "paintEvent"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 58
+        },
+        {
+          "name": "AnalyticsPanel",
+          "methods": [
+            "__init__",
+            "_init_ui",
+            "_selected_run_id",
+            "refresh",
+            "_refresh_archive",
+            "_export_csv",
+            "_open_report"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 148
+        },
+        {
+          "name": "MainWindow",
+          "methods": [
+            "__init__",
+            "_randomize_faults",
+            "_init_ui",
+            "_apply_styles",
+            "_on_routing_mode_changed",
+            "_on_topo_changed",
+            "_on_timer_tick",
+            "toggle_play",
+            "_on_speed_changed",
+            "_on_q_changed",
+            "_on_n_changed",
+            "_on_slider_moved",
+            "_on_controller_tick",
+            "_on_controller_state_change",
+            "_on_controller_reset",
+            "refresh_all",
+            "_update_logs",
+            "closeEvent"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 576
+        }
+      ],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any",
+            "Dict",
+            "List",
+            "Optional",
+            "Tuple"
+          ]
+        },
+        {
+          "source": "PySide6.QtCore",
+          "specifiers": [
+            "Qt",
+            "QTimer",
+            "QPoint",
+            "QRectF",
+            "QPointF"
+          ]
+        },
+        {
+          "source": "PySide6.QtGui",
+          "specifiers": [
+            "QFont",
+            "QPainter",
+            "QPen",
+            "QColor",
+            "QBrush"
+          ]
+        },
+        {
+          "source": "PySide6.QtWidgets",
+          "specifiers": [
+            "QApplication",
+            "QMainWindow",
+            "QWidget",
+            "QVBoxLayout",
+            "QHBoxLayout",
+            "QGridLayout",
+            "QPushButton",
+            "QLabel",
+            "QSpinBox",
+            "QDoubleSpinBox",
+            "QComboBox",
+            "QTextEdit",
+            "QSlider",
+            "QSplitter",
+            "QTabWidget",
+            "QTableWidget",
+            "QTableWidgetItem",
+            "QHeaderView",
+            "QAbstractItemView"
+          ]
+        },
+        {
+          "source": "models",
+          "specifiers": [
+            "NeuronState",
+            "RequestStatus",
+            "PlayState",
+            "BaseArchitecture",
+            "ToroidalGridArchitecture",
+            "RhomboidArchitecture",
+            "PyramidalArchitecture",
+            "Star8Architecture",
+            "HoneycombPipelineArchitecture",
+            "SymmetricStar8Architecture",
+            "Funnel8Architecture",
+            "ChordalFunnel8Architecture"
+          ]
+        },
+        {
+          "source": "controller",
+          "specifiers": [
+            "SimulationController"
+          ]
+        },
+        {
+          "source": "analytics_db",
+          "specifiers": [
+            "AnalyticsRecorder"
+          ]
+        }
+      ],
+      "exports": [
+        "NeuronButton",
+        "TopologyCanvasWidget",
+        "AnalyticsLineChart",
+        "AnalyticsBarChart",
+        "AnalyticsHeatmap",
+        "AnalyticsPanel",
+        "MainWindow",
+        "run_gui"
+      ],
+      "totalLines": 1204,
+      "hasStructuralAnalysis": true
+    },
+    "main.py": {
+      "filePath": "main.py",
+      "contentHash": "90191846ae95d57f731699babf7a66a3802fd937260c7415a2def4b7affc4a8d",
+      "functions": [
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "gui",
+          "specifiers": [
+            "run_gui"
+          ]
+        }
+      ],
+      "exports": [
+        "main"
+      ],
+      "totalLines": 11,
+      "hasStructuralAnalysis": true
+    },
+    "models.py": {
+      "filePath": "models.py",
+      "contentHash": "9b074b5af13c715fede99ad06d7daff92f55ba3dbc7817cd1dcc51c638c0249b",
+      "functions": [],
+      "classes": [
+        {
+          "name": "NeuronState",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "RequestStatus",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "PlayState",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "Request",
+          "methods": [
+            "__init__",
+            "attach_to_neuron",
+            "mark_completed",
+            "mark_rejected",
+            "is_finished",
+            "is_pipeline_built",
+            "get_path_string",
+            "__repr__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 55
+        },
+        {
+          "name": "Neuron",
+          "methods": [
+            "__init__",
+            "can_accept",
+            "accept_request",
+            "finalize_computation",
+            "release_aborted",
+            "record_unprocessed",
+            "toggle_fault",
+            "get_display_info"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 110
+        },
+        {
+          "name": "SimulationSnapshot",
+          "methods": [],
+          "properties": [
+            "tick",
+            "neurons_state",
+            "requests",
+            "active_count",
+            "completed_count",
+            "rejected_count",
+            "total_generated",
+            "new_logs",
+            "next_input_idx",
+            "scheduled_faults"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "BaseArchitecture",
+          "methods": [
+            "__init__",
+            "set_return_to_origin",
+            "set_generation_ticks",
+            "input_columns_count",
+            "reset_topology",
+            "get_candidate_neighbors",
+            "get_topology_info",
+            "get_neuron",
+            "all_neurons",
+            "is_finished",
+            "inject_initial_requests",
+            "log_event",
+            "truncate_future",
+            "_record_snapshot",
+            "_update_current_snapshot",
+            "_restore_from_snapshot",
+            "toggle_neuron_fault",
+            "randomize_faults",
+            "schedule_random_faults",
+            "_apply_scheduled_faults",
+            "step_simulation",
+            "step_forward",
+            "step_backward",
+            "fast_forward_to_end",
+            "go_to_history_tick",
+            "reset"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 443
+        },
+        {
+          "name": "ToroidalGridArchitecture",
+          "methods": [
+            "__init__",
+            "input_columns_count",
+            "reset_topology",
+            "get_candidate_neighbors",
+            "get_topology_info"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 115
+        },
+        {
+          "name": "PyramidalArchitecture",
+          "methods": [
+            "__init__",
+            "input_columns_count",
+            "reset_topology",
+            "get_candidate_neighbors",
+            "get_topology_info"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 135
+        },
+        {
+          "name": "RhomboidArchitecture",
+          "methods": [
+            "__init__",
+            "input_columns_count",
+            "reset_topology",
+            "get_candidate_neighbors",
+            "get_topology_info"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 131
+        },
+        {
+          "name": "Star8Architecture",
+          "methods": [
+            "__init__",
+            "input_columns_count",
+            "reset_topology",
+            "get_candidate_neighbors",
+            "get_topology_info"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 200
+        },
+        {
+          "name": "HoneycombPipelineArchitecture",
+          "methods": [
+            "__init__",
+            "input_columns_count",
+            "reset_topology",
+            "get_candidate_neighbors",
+            "get_topology_info"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 81
+        },
+        {
+          "name": "SymmetricStar8Architecture",
+          "methods": [
+            "__init__",
+            "input_columns_count",
+            "reset_topology",
+            "get_candidate_neighbors",
+            "get_topology_info"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 135
+        },
+        {
+          "name": "Funnel8Architecture",
+          "methods": [
+            "__init__",
+            "input_columns_count",
+            "reset_topology",
+            "get_candidate_neighbors",
+            "get_topology_info"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 114
+        },
+        {
+          "name": "ChordalFunnel8Architecture",
+          "methods": [
+            "__init__",
+            "input_columns_count",
+            "reset_topology",
+            "get_candidate_neighbors",
+            "get_topology_info"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 96
+        },
+        {
+          "name": "SimulationEngine",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "abc",
+          "specifiers": [
+            "abc"
+          ]
+        },
+        {
+          "source": "copy",
+          "specifiers": [
+            "copy"
+          ]
+        },
+        {
+          "source": "random",
+          "specifiers": [
+            "random"
+          ]
+        },
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass",
+            "field"
+          ]
+        },
+        {
+          "source": "enum",
+          "specifiers": [
+            "Enum"
+          ]
+        },
+        {
+          "source": "math",
+          "specifiers": [
+            "math"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any",
+            "Callable",
+            "Dict",
+            "List",
+            "Optional",
+            "Tuple"
+          ]
+        },
+        {
+          "source": "controller",
+          "specifiers": [
+            "SimulationController"
+          ]
+        }
+      ],
+      "exports": [
+        "NeuronState",
+        "RequestStatus",
+        "PlayState",
+        "Request",
+        "Neuron",
+        "SimulationSnapshot",
+        "BaseArchitecture",
+        "ToroidalGridArchitecture",
+        "PyramidalArchitecture",
+        "RhomboidArchitecture",
+        "Star8Architecture",
+        "HoneycombPipelineArchitecture",
+        "SymmetricStar8Architecture",
+        "Funnel8Architecture",
+        "ChordalFunnel8Architecture",
+        "SimulationEngine"
+      ],
+      "totalLines": 1715,
+      "hasStructuralAnalysis": true
+    },
+    "skills-lock.json": {
+      "filePath": "skills-lock.json",
+      "contentHash": "86241cb3ac1f5b0fa874bce4849f74be9a8e4e8b7d1a24a4ba656f7e64a52e5b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 12,
+      "hasStructuralAnalysis": false
+    },
+    "test_simulation.py": {
+      "filePath": "test_simulation.py",
+      "contentHash": "d1e50503327dbcf7a21a1dcf634d5f8ecd21f4d383ccb831747e44cc50e421c0",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TestSimulation",
+          "methods": [
+            "test_base_architecture_is_abstract",
+            "test_lifetime_formula",
+            "test_pipeline_decrements_q",
+            "test_return_to_origin_column",
+            "test_torus_6x6_default",
+            "test_torus_wrap_only_horizontal",
+            "test_mvc_controller_separation",
+            "test_rhomboid_architecture",
+            "test_star8_architecture",
+            "test_honeycomb_architecture",
+            "test_symmetric_star8_architecture",
+            "test_controller_architecture_switching",
+            "test_memento_time_travel",
+            "test_simulation_controller",
+            "test_funnel8_architecture_fault_tolerance",
+            "test_chordal_funnel8_architecture_fault_tolerance",
+            "test_backwards_compatibility_simulation_engine",
+            "test_gui_headless_switching",
+            "test_analytics_recorder_persists_detailed_state",
+            "test_analytics_branch_keeps_history_indices",
+            "test_scheduled_random_faults_apply_during_execution",
+            "test_analytics_request_duration_and_fault_metrics",
+            "test_neuron_invulnerability_during_request_processing",
+            "test_neuron_invulnerability_cancellation",
+            "test_neuron_invulnerability_on_rejected_request",
+            "test_random_fault_preserves_busy_request_and_records_event",
+            "test_random_fault_truncates_future_history",
+            "test_random_fault_zero_probability_is_noop",
+            "test_generation_ticks_custom",
+            "test_routing_mode_downward_without_return_torus",
+            "test_pyramidal_architecture_and_modes",
+            "test_rhomboid_architecture_modes"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 792
+        }
+      ],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "sqlite3",
+          "specifiers": [
+            "sqlite3"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "unittest",
+          "specifiers": [
+            "unittest"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "tempfile",
+          "specifiers": [
+            "TemporaryDirectory"
+          ]
+        },
+        {
+          "source": "models",
+          "specifiers": [
+            "BaseArchitecture",
+            "ToroidalGridArchitecture",
+            "RhomboidArchitecture",
+            "PyramidalArchitecture",
+            "Star8Architecture",
+            "HoneycombPipelineArchitecture",
+            "SymmetricStar8Architecture",
+            "Funnel8Architecture",
+            "ChordalFunnel8Architecture",
+            "SimulationEngine",
+            "NeuronState",
+            "RequestStatus",
+            "PlayState",
+            "Request",
+            "Neuron"
+          ]
+        },
+        {
+          "source": "controller",
+          "specifiers": [
+            "SimulationController"
+          ]
+        },
+        {
+          "source": "analytics_db",
+          "specifiers": [
+            "AnalyticsRecorder"
+          ]
+        }
+      ],
+      "exports": [
+        "TestSimulation"
+      ],
+      "totalLines": 830,
+      "hasStructuralAnalysis": true
+    }
+  }
+}
