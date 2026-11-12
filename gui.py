@@ -7,13 +7,14 @@
 
 from __future__ import annotations
 import sys
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-from PySide6.QtCore import Qt, QTimer, QPoint, QRectF
+from PySide6.QtCore import Qt, QTimer, QPoint, QRectF, QPointF
 from PySide6.QtGui import QFont, QPainter, QPen, QColor, QBrush
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QGridLayout, QPushButton, QLabel, QSpinBox, QDoubleSpinBox, QComboBox,
-    QTextEdit, QSlider, QSplitter
+    QTextEdit, QSlider, QSplitter, QTabWidget
 )
 
 from models import (
@@ -24,6 +25,7 @@ from models import (
     Funnel8Architecture, ChordalFunnel8Architecture
 )
 from controller import SimulationController
+from analytics_db import AnalyticsRecorder
 
 
 class NeuronButton(QPushButton):
@@ -296,6 +298,250 @@ class TopologyCanvasWidget(QWidget):
         self.update()
 
 
+class AnalyticsLineChart(QWidget):
+    """Small dependency-free line chart for live simulation metrics."""
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self.series: List[Tuple[str, List[float], str]] = []
+        self.labels: List[str] = []
+        self.setMinimumHeight(250)
+
+    def set_data(self, labels: List[str], series: List[Tuple[str, List[float], str]]) -> None:
+        self.labels = labels
+        self.series = series
+        self.update()
+
+    def paintEvent(self, event) -> None:
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.fillRect(self.rect(), QColor("#171b20"))
+        chart = self.rect().adjusted(52, 34, -22, -34)
+        all_values = [value for _, values, _ in self.series for value in values]
+        if not all_values or chart.width() <= 0 or chart.height() <= 0:
+            painter.setPen(QColor("#8b949e"))
+            painter.drawText(chart, Qt.AlignCenter, "Пока нет тактов для графика")
+            return
+
+        maximum = max(1.0, max(all_values))
+        painter.setPen(QPen(QColor("#30363d"), 1))
+        for step in range(5):
+            y = chart.bottom() - int(chart.height() * step / 4)
+            painter.drawLine(chart.left(), y, chart.right(), y)
+            painter.setPen(QColor("#768390"))
+            painter.drawText(4, y - 8, 42, 18, Qt.AlignRight, str(int(maximum * step / 4)))
+            painter.setPen(QPen(QColor("#30363d"), 1))
+        painter.drawRect(chart)
+
+        point_count = max((len(values) for _, values, _ in self.series), default=0)
+        for name, values, color in self.series:
+            if not values:
+                continue
+            points: List[QPointF] = []
+            for index, value in enumerate(values):
+                x = chart.left() if point_count <= 1 else chart.left() + chart.width() * index / (point_count - 1)
+                y = chart.bottom() - chart.height() * float(value) / maximum
+                points.append(QPointF(x, y))
+            pen = QPen(QColor(color), 2.0)
+            painter.setPen(pen)
+            for previous, current in zip(points, points[1:]):
+                painter.drawLine(previous, current)
+            painter.setBrush(QColor(color))
+            for point in points:
+                painter.drawEllipse(point, 3.0, 3.0)
+
+        painter.setFont(QFont("Segoe UI", 8))
+        legend_x = chart.left()
+        for name, _, color in self.series:
+            painter.setPen(QColor(color))
+            painter.drawText(legend_x, 18, 120, 16, Qt.AlignLeft, f"● {name}")
+            legend_x += 118
+        if self.labels:
+            painter.setPen(QColor("#768390"))
+            painter.drawText(chart.left(), self.height() - 20, 120, 16, Qt.AlignLeft, self.labels[0])
+            painter.drawText(chart.right() - 120, self.height() - 20, 120, 16, Qt.AlignRight, self.labels[-1])
+
+
+class AnalyticsBarChart(QWidget):
+    """Bar chart for event and outcome distributions."""
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self.values: List[Tuple[str, int]] = []
+        self.setMinimumHeight(250)
+
+    def set_data(self, values: List[Tuple[str, int]]) -> None:
+        self.values = values
+        self.update()
+
+    def paintEvent(self, event) -> None:
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.fillRect(self.rect(), QColor("#171b20"))
+        chart = self.rect().adjusted(50, 22, -20, -46)
+        if not self.values:
+            painter.setPen(QColor("#8b949e"))
+            painter.drawText(chart, Qt.AlignCenter, "Пока нет событий")
+            return
+        maximum = max(1, max(value for _, value in self.values))
+        slot = chart.width() / max(1, len(self.values))
+        for index, (label, value) in enumerate(self.values):
+            bar_width = max(8.0, slot * 0.62)
+            x = chart.left() + index * slot + (slot - bar_width) / 2
+            bar_height = chart.height() * value / maximum
+            y = chart.bottom() - bar_height
+            painter.setBrush(QColor("#4fc3f7" if index % 2 == 0 else "#ab47bc"))
+            painter.setPen(Qt.NoPen)
+            painter.drawRoundedRect(x, y, bar_width, bar_height, 4, 4)
+            painter.setPen(QColor("#d7e3ea"))
+            painter.drawText(int(x), int(y) - 20, int(bar_width), 16, Qt.AlignHCenter, str(value))
+            painter.setPen(QColor("#9aa6b2"))
+            painter.drawText(int(x - 10), chart.bottom() + 8, int(bar_width + 20), 30, Qt.AlignHCenter, label)
+        painter.setPen(QPen(QColor("#30363d"), 1))
+        painter.drawRect(chart)
+
+
+class AnalyticsHeatmap(QWidget):
+    """Current neuron state map backed by the detailed SQLite snapshots."""
+
+    COLORS = {
+        "FAULTY": QColor("#8f2f3a"),
+        "BUSY": QColor("#006d77"),
+        "EXHAUSTED": QColor("#46515b"),
+        "FREE": QColor("#26313a"),
+    }
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self.neurons: List[Dict[str, Any]] = []
+        self.setMinimumHeight(250)
+
+    def set_data(self, neurons: List[Dict[str, Any]]) -> None:
+        self.neurons = neurons
+        self.update()
+
+    def paintEvent(self, event) -> None:
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.fillRect(self.rect(), QColor("#171b20"))
+        if not self.neurons:
+            painter.setPen(QColor("#8b949e"))
+            painter.drawText(self.rect(), Qt.AlignCenter, "Нет состояния нейронов")
+            return
+
+        max_row = max(int(node["row"]) for node in self.neurons)
+        max_col = max(int(node["col"]) for node in self.neurons)
+        chart = self.rect().adjusted(30, 24, -24, -34)
+        cell_w = min(76.0, max(28.0, chart.width() / (max_col + 1)))
+        cell_h = min(48.0, max(28.0, chart.height() / (max_row + 1)))
+        grid_w = cell_w * (max_col + 1)
+        grid_h = cell_h * (max_row + 1)
+        origin_x = chart.left() + max(0.0, (chart.width() - grid_w) / 2)
+        origin_y = chart.top() + max(0.0, (chart.height() - grid_h) / 2)
+
+        painter.setFont(QFont("Segoe UI", 7))
+        for node in self.neurons:
+            row = int(node["row"])
+            col = int(node["col"])
+            state_code = str(node.get("state_code") or "FREE")
+            x = origin_x + col * cell_w + 2
+            y = origin_y + row * cell_h + 2
+            color = self.COLORS.get(state_code, self.COLORS["FREE"])
+            painter.setBrush(color)
+            painter.setPen(QPen(QColor("#ef5350") if node.get("pending_fault") else QColor("#58636f"), 2 if node.get("pending_fault") else 1))
+            painter.drawRoundedRect(x, y, cell_w - 4, cell_h - 4, 4, 4)
+            painter.setPen(QColor("#e6edf3"))
+            painter.drawText(int(x), int(y + cell_h / 2 - 8), int(cell_w - 4), 16, Qt.AlignCenter, f"{row},{col}")
+            count = int(node.get("processed_requests_count") or 0)
+            if count:
+                painter.setPen(QColor("#9be9a8"))
+                painter.drawText(int(x), int(y + cell_h - 16), int(cell_w - 4), 14, Qt.AlignCenter, f"Σ {count}")
+
+        painter.setPen(QColor("#9aa6b2"))
+        painter.drawText(8, self.height() - 16, self.width() - 16, 16, Qt.AlignCenter, "красный — сбой · бирюзовый — занят · серый — завершён · тёмный — свободен")
+
+
+class AnalyticsPanel(QWidget):
+    """Dashboard for the live SQLite recorder."""
+
+    def __init__(self, recorder: AnalyticsRecorder, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self.recorder = recorder
+        self._init_ui()
+
+    def _init_ui(self) -> None:
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(8)
+
+        header = QHBoxLayout()
+        self.lbl_run = QLabel("Запуск: —")
+        self.lbl_path = QLabel(str(self.recorder.db_path))
+        self.lbl_path.setStyleSheet("color: #7d8a96; font-size: 8pt;")
+        header.addWidget(self.lbl_run)
+        header.addWidget(self.lbl_path, 1)
+        self.btn_refresh = QPushButton("Обновить")
+        self.btn_refresh.clicked.connect(self.refresh)
+        header.addWidget(self.btn_refresh)
+        self.btn_export = QPushButton("Экспорт CSV")
+        self.btn_export.clicked.connect(self._export_csv)
+        header.addWidget(self.btn_export)
+        layout.addLayout(header)
+
+        self.summary = QLabel()
+        self.summary.setStyleSheet("color: #b9c6d0; padding: 4px;")
+        self.summary.setWordWrap(True)
+        layout.addWidget(self.summary)
+
+        self.tabs = QTabWidget()
+        self.metrics_chart = AnalyticsLineChart()
+        self.events_chart = AnalyticsBarChart()
+        self.heatmap = AnalyticsHeatmap()
+        self.tabs.addTab(self.metrics_chart, "Метрики по тактам")
+        self.tabs.addTab(self.events_chart, "События")
+        self.tabs.addTab(self.heatmap, "Нейроны")
+        layout.addWidget(self.tabs, 1)
+
+        self.lbl_status = QLabel()
+        self.lbl_status.setStyleSheet("color: #7d8a96; font-size: 8pt;")
+        layout.addWidget(self.lbl_status)
+
+    def refresh(self) -> None:
+        summary = self.recorder.get_run_summary()
+        if not summary:
+            self.lbl_run.setText("Запуск: —")
+            self.summary.setText("Нет записанных данных")
+            return
+        self.lbl_run.setText(f"Запуск #{summary['run_id']} · {summary['architecture']}")
+        self.summary.setText(
+            f"Снимков: {summary['ticks']} · событий: {summary['events']} · "
+            f"нейронов: {summary['neurons']} · заявок в истории: {summary['requests']} · "
+            f"завершено: {summary['completed']} · отказов: {summary['rejected']}"
+        )
+
+        metrics = self.recorder.get_tick_metrics()
+        labels = [f"#{row['history_index']} · t{row['tick']}" for row in metrics]
+        self.metrics_chart.set_data(
+            labels,
+            [
+                ("активно", [row.get("active_count") or 0 for row in metrics], "#4fc3f7"),
+                ("сгенерировано", [row.get("total_generated") or 0 for row in metrics], "#ffca28"),
+                ("завершено", [row.get("completed_count") or 0 for row in metrics], "#66bb6a"),
+                ("отказано", [row.get("rejected_count") or 0 for row in metrics], "#ef5350"),
+            ],
+        )
+        self.events_chart.set_data(self.recorder.get_event_counts())
+        self.heatmap.set_data(self.recorder.get_neuron_heatmap())
+        self.lbl_status.setText("Данные обновлены из SQLite")
+
+    def _export_csv(self) -> None:
+        if self.recorder.run_id is None:
+            return
+        output = self.recorder.db_path.parent / "csv" / f"run_{self.recorder.run_id}"
+        paths = self.recorder.export_csv(output)
+        self.lbl_status.setText(f"CSV сохранён: {output} ({len(paths)} файлов)")
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -316,6 +562,8 @@ class MainWindow(QMainWindow):
             return_to_origin=self.return_to_origin
         )
         self.ctrl = SimulationController(self.arch, speed_ms=400)
+        self.analytics = AnalyticsRecorder(Path(__file__).with_name("analytics") / "simulation.sqlite")
+        self.analytics.start_run(self.arch)
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._on_timer_tick)
@@ -330,10 +578,17 @@ class MainWindow(QMainWindow):
 
     def _randomize_faults(self) -> None:
         seed = self.spin_fault_seed.value()
+        count = self.spin_faults.value()
+        probability = self.spin_fault_probability.value()
         self.ctrl.randomize_faults(
-            count=self.spin_faults.value(),
-            probability=self.spin_fault_probability.value(),
+            count=count,
+            probability=probability,
             seed=None if seed < 0 else seed,
+        )
+        self.analytics.record_action(
+            self.arch,
+            "random_faults",
+            {"count": count, "probability": probability, "seed": None if seed < 0 else seed},
         )
         self._update_logs()
         self.refresh_all()
@@ -533,7 +788,16 @@ class MainWindow(QMainWindow):
         splitter.setStretchFactor(0, 4)
         splitter.setStretchFactor(1, 2)
 
-        main_layout.addWidget(splitter, 1)
+        workspace_tabs = QTabWidget()
+        simulation_page = QWidget()
+        simulation_layout = QVBoxLayout(simulation_page)
+        simulation_layout.setContentsMargins(0, 0, 0, 0)
+        simulation_layout.addWidget(splitter)
+        workspace_tabs.addTab(simulation_page, "Симуляция")
+
+        self.analytics_panel = AnalyticsPanel(self.analytics)
+        workspace_tabs.addTab(self.analytics_panel, "Аналитика")
+        main_layout.addWidget(workspace_tabs, 1)
 
     def _apply_styles(self) -> None:
         self.setStyleSheet("""
@@ -613,6 +877,11 @@ class MainWindow(QMainWindow):
         """Переключение режима маршрутизации (возврат в ячейку / идти вниз при смещении)."""
         self.return_to_origin = bool(self.combo_mode.currentData())
         self.ctrl.set_return_to_origin(self.return_to_origin)
+        self.analytics.record_action(
+            self.arch,
+            "routing_mode",
+            {"return_to_origin": self.return_to_origin},
+        )
         self.refresh_all()
 
     def _on_topo_changed(self, index: int) -> None:
@@ -710,9 +979,12 @@ class MainWindow(QMainWindow):
             self.ctrl.go_to_tick(val)
 
     def _on_controller_tick(self, tick: int) -> None:
+        self.analytics.record_snapshot(self.arch)
         self.refresh_all()
 
     def _on_controller_state_change(self, state: PlayState) -> None:
+        if state != PlayState.STOPPED:
+            self.analytics.record_action(self.arch, "play_state", {"state": state.name})
         if state == PlayState.PLAYING:
             self.btn_play.setText("Пауза")
             if not self.timer.isActive():
@@ -731,6 +1003,7 @@ class MainWindow(QMainWindow):
         if self.timer.isActive():
             self.timer.stop()
         self.btn_play.setText("Пуск")
+        self.analytics.start_run(self.arch)
         self.refresh_all()
 
     def refresh_all(self) -> None:
@@ -758,6 +1031,8 @@ class MainWindow(QMainWindow):
         self.kpi_fail_rate.setText(f"{kpi['fail_rate']:.1f} %")
 
         self._update_logs()
+        if hasattr(self, "analytics_panel"):
+            self.analytics_panel.refresh()
 
     def _update_logs(self) -> None:
         html_lines = []
@@ -793,6 +1068,10 @@ class MainWindow(QMainWindow):
         self.log_view.setHtml("".join(html_lines))
         scrollbar = self.log_view.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
+
+    def closeEvent(self, event) -> None:
+        self.analytics.close()
+        super().closeEvent(event)
 
 
 def run_gui():

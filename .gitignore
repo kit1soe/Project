@@ -12,3 +12,8 @@ PENDING_TASKS.md
 
 
 *.lnk
+
+# Runtime analytics database and generated CSV exports
+analytics/*.sqlite
+analytics/*.sqlite-*
+analytics/csv/

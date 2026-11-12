@@ -13,8 +13,11 @@
 """
 
 import os
+import sqlite3
 import sys
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from models import (
     BaseArchitecture, ToroidalGridArchitecture, RhomboidArchitecture,
     PyramidalArchitecture,
@@ -24,6 +27,7 @@ from models import (
     NeuronState, RequestStatus, PlayState, Request, Neuron
 )
 from controller import SimulationController
+from analytics_db import AnalyticsRecorder
 
 
 class TestSimulation(unittest.TestCase):
@@ -499,6 +503,55 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(win.ctrl.architecture.get_topology_info()["type"], "toroidal_grid")
         self.assertEqual(win.ctrl.architecture.cols, 6)
         win.ctrl.step_forward()
+
+    def test_analytics_recorder_persists_detailed_state(self):
+        """SQLite stores run metadata, snapshots, events and every neuron state."""
+        with TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "analytics.sqlite"
+            arch = ToroidalGridArchitecture(rows=3, cols=3, q_required=2, total_initial_requests=2)
+            ctrl = SimulationController(arch)
+            with AnalyticsRecorder(db_path) as recorder:
+                run_id = recorder.start_run(arch)
+                ctrl.step_forward()
+                recorder.record_snapshot(arch)
+                ctrl.toggle_fault(1, 0)
+                recorder.record_snapshot(arch)
+
+                summary = recorder.get_run_summary(run_id)
+                self.assertEqual(summary["run_id"], run_id)
+                self.assertGreaterEqual(summary["ticks"], 2)
+                self.assertEqual(summary["neurons"], 9)
+                self.assertGreaterEqual(summary["events"], 1)
+                self.assertTrue(recorder.get_event_counts(run_id))
+                self.assertEqual(len(recorder.get_neuron_heatmap(run_id)), 9)
+                exported = recorder.export_csv(Path(tmp) / "csv", run_id)
+                self.assertEqual(len(exported), 5)
+
+            db = sqlite3.connect(db_path)
+            try:
+                self.assertGreater(db.execute("SELECT COUNT(*) FROM neuron_states").fetchone()[0], 0)
+                self.assertGreater(db.execute("SELECT COUNT(*) FROM topology_edges").fetchone()[0], 0)
+                self.assertGreater(db.execute("SELECT COUNT(*) FROM actions").fetchone()[0], 0)
+            finally:
+                db.close()
+
+    def test_analytics_branch_keeps_history_indices(self):
+        """Rewinding and changing a run leaves branch snapshots queryable."""
+        with TemporaryDirectory() as tmp:
+            arch = ToroidalGridArchitecture(rows=3, cols=3, q_required=2, total_initial_requests=3)
+            ctrl = SimulationController(arch)
+            with AnalyticsRecorder(Path(tmp) / "analytics.sqlite") as recorder:
+                run_id = recorder.start_run(arch)
+                for _ in range(4):
+                    ctrl.step_forward()
+                    recorder.record_snapshot(arch)
+                ctrl.go_to_tick(2)
+                recorder.record_snapshot(arch)
+                ctrl.toggle_fault(1, 0)
+                recorder.record_snapshot(arch)
+                indices = [row["history_index"] for row in recorder.get_tick_metrics(run_id)]
+                self.assertIn(2, indices)
+                self.assertGreaterEqual(len(indices), 4)
 
 
     def test_neuron_invulnerability_during_request_processing(self):
