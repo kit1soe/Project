@@ -621,6 +621,18 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(len(arch.history), 2)
         self.assertEqual(arch.current_history_index, 1)
 
+    def test_random_fault_zero_probability_is_noop(self):
+        """Нулевая вероятность не меняет состояние и не обрезает историю."""
+        arch = ToroidalGridArchitecture(rows=6, cols=6, q_required=4, total_initial_requests=2)
+        arch.step_forward()
+        arch.step_forward()
+        arch.step_backward()
+        before_len = len(arch.history)
+
+        self.assertEqual(arch.randomize_faults(count=1, probability=0.0, seed=0), [])
+        self.assertEqual(len(arch.history), before_len)
+        self.assertEqual(arch.current_history_index, 1)
+
     def test_generation_ticks_custom(self):
         """Проверка генерации заявок строго на заданных тактах симуляции (замечание руководителя Югова А.А.)."""
         arch = ToroidalGridArchitecture(rows=6, cols=4, q_required=3, total_initial_requests=3, generation_ticks=[2, 5, 8])

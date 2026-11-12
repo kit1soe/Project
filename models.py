@@ -456,12 +456,14 @@ class BaseArchitecture(abc.ABC):
 
     def randomize_faults(self, count: int = 1, probability: float = 1.0, seed: Optional[int] = None) -> List[str]:
         """Inject random faults; busy neurons receive a deferred pending_fault."""
-        self.truncate_future()
-        log_start = len(self.logs)
         rng = random.Random(seed)
         candidates = [n for n in self.all_neurons() if n.is_operational and not n.pending_fault]
         rng.shuffle(candidates)
         selected = [n for n in candidates[:max(0, count)] if rng.random() <= max(0.0, min(1.0, probability))]
+        if not selected:
+            return []
+        self.truncate_future()
+        log_start = len(self.logs)
         changed: List[str] = []
         for neuron in selected:
             active, status = neuron.toggle_fault()
