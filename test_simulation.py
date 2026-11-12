@@ -525,7 +525,7 @@ class TestSimulation(unittest.TestCase):
                 self.assertTrue(recorder.get_event_counts(run_id))
                 self.assertEqual(len(recorder.get_neuron_heatmap(run_id)), 9)
                 exported = recorder.export_csv(Path(tmp) / "csv", run_id)
-                self.assertEqual(len(exported), 5)
+                self.assertEqual(len(exported), 8)
 
             db = sqlite3.connect(db_path)
             try:
@@ -552,6 +552,42 @@ class TestSimulation(unittest.TestCase):
                 indices = [row["history_index"] for row in recorder.get_tick_metrics(run_id)]
                 self.assertIn(2, indices)
                 self.assertGreaterEqual(len(indices), 4)
+
+    def test_scheduled_random_faults_apply_during_execution(self):
+        """Scheduled mode keeps a plan in history and applies it on a future tick."""
+        arch = ToroidalGridArchitecture(rows=3, cols=3, q_required=2, total_initial_requests=1)
+        ctrl = SimulationController(arch)
+        plan = ctrl.schedule_random_faults(count=2, probability=1.0, seed=7)
+        self.assertEqual(sum(len(addresses) for addresses in plan.values()), 2)
+        self.assertTrue(all(tick > arch.current_tick for tick in plan))
+        self.assertTrue(arch.history[arch.current_history_index].scheduled_faults)
+
+        for _ in range(max(plan) + 1):
+            ctrl.step_forward()
+        self.assertFalse(arch.scheduled_faults)
+        self.assertTrue(any(entry["type"] == "FAULT" for entry in arch.logs))
+
+    def test_analytics_request_duration_and_fault_metrics(self):
+        """Final request metrics expose duration and completion through a fault."""
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "analytics.sqlite"
+            arch = ToroidalGridArchitecture(rows=3, cols=3, q_required=2, total_initial_requests=1)
+            ctrl = SimulationController(arch)
+            with AnalyticsRecorder(path) as recorder:
+                recorder.start_run(arch)
+                ctrl.step_forward()
+                recorder.record_snapshot(arch)
+                ctrl.toggle_fault(1, 0)
+                recorder.record_snapshot(arch)
+                ctrl.fast_forward()
+                recorder.record_snapshot(arch)
+                metrics = recorder.db.execute(
+                    "SELECT duration_ticks, path_length, waiting_ticks FROM request_metrics WHERE run_id=?",
+                    (recorder.run_id,),
+                ).fetchall()
+                self.assertTrue(metrics)
+                self.assertIsNotNone(metrics[-1][0])
+                self.assertGreaterEqual(metrics[-1][1], 1)
 
 
     def test_neuron_invulnerability_during_request_processing(self):

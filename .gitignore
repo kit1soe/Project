@@ -17,3 +17,9 @@ PENDING_TASKS.md
 analytics/*.sqlite
 analytics/*.sqlite-*
 analytics/csv/
+analytics/
+
+# Understand Anything scratch output; keep the committed graph and metadata.
+.ua/intermediate/
+.ua/tmp/
+.ua/.trash-*/

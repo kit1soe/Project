@@ -16,7 +16,7 @@ from __future__ import annotations
 import abc
 import copy
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 import math
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -234,6 +234,7 @@ class SimulationSnapshot:
     total_generated: int
     new_logs: List[Dict[str, str]]
     next_input_idx: int
+    scheduled_faults: Dict[int, List[Tuple[int, int]]] = field(default_factory=dict)
 
 
 class BaseArchitecture(abc.ABC):
@@ -266,6 +267,7 @@ class BaseArchitecture(abc.ABC):
         self.logs: List[Dict[str, str]] = []
         self.history: List[SimulationSnapshot] = []
         self.current_history_index: int = 0
+        self.scheduled_faults: Dict[int, List[Tuple[int, int]]] = {}
 
         self.neurons_map: Dict[Tuple[int, int], Neuron] = {}
 
@@ -350,6 +352,11 @@ class BaseArchitecture(abc.ABC):
         if self.current_history_index < len(self.history) - 1:
             self.history = self.history[:self.current_history_index + 1]
             self.logs = [entry for entry in self.logs if entry["tick"] <= self.current_tick]
+            self.scheduled_faults = {
+                tick: list(addresses)
+                for tick, addresses in self.scheduled_faults.items()
+                if tick <= self.current_tick
+            }
 
     def _record_snapshot(self, new_logs: List[Dict[str, str]]) -> None:
         grid_data = {
@@ -367,7 +374,8 @@ class BaseArchitecture(abc.ABC):
             rejected_count=self.rejected_count,
             total_generated=self.total_generated,
             new_logs=list(new_logs),
-            next_input_idx=self.next_input_idx
+            next_input_idx=self.next_input_idx,
+            scheduled_faults=copy.deepcopy(self.scheduled_faults),
         )
         self.history.append(snapshot)
         self.current_history_index = len(self.history) - 1
@@ -393,7 +401,8 @@ class BaseArchitecture(abc.ABC):
             rejected_count=self.rejected_count,
             total_generated=self.total_generated,
             new_logs=snapshot_logs,
-            next_input_idx=self.next_input_idx
+            next_input_idx=self.next_input_idx,
+            scheduled_faults=copy.deepcopy(self.scheduled_faults),
         )
 
     def _restore_from_snapshot(self, s: SimulationSnapshot) -> None:
@@ -402,6 +411,7 @@ class BaseArchitecture(abc.ABC):
         self.completed_count = s.completed_count
         self.rejected_count = s.rejected_count
         self.next_input_idx = s.next_input_idx
+        self.scheduled_faults = copy.deepcopy(getattr(s, "scheduled_faults", {}))
         self.all_requests = copy.deepcopy(s.requests)
 
         is_dict = isinstance(s.neurons_state, dict)
@@ -477,12 +487,76 @@ class BaseArchitecture(abc.ABC):
             self._update_current_snapshot(self.logs[log_start:])
         return changed
 
+    def schedule_random_faults(
+        self,
+        count: int = 1,
+        probability: float = 1.0,
+        seed: Optional[int] = None,
+    ) -> Dict[int, List[Tuple[int, int]]]:
+        """Schedule random faults to appear during future simulation ticks.
+
+        The selected neurons are not disabled immediately.  At their scheduled
+        tick the normal ``pending_fault`` rule is used, so a busy neuron first
+        finishes its current request and only then becomes faulty.
+        """
+        rng = random.Random(seed)
+        candidates = [n for n in self.all_neurons() if n.is_operational and not n.pending_fault]
+        rng.shuffle(candidates)
+        probability = max(0.0, min(1.0, probability))
+        selected = [n for n in candidates[:max(0, count)] if rng.random() <= probability]
+        if not selected:
+            return {}
+
+        self.truncate_future()
+        horizon = max(
+            self.current_tick + 4,
+            self.current_tick + (3 * self.q_required + 2),
+            self.current_tick + (2 * max(1, self.total_initial_requests)),
+        )
+        future_ticks = list(range(self.current_tick + 1, horizon + 1))
+        rng.shuffle(future_ticks)
+        plan: Dict[int, List[Tuple[int, int]]] = {}
+        for index, neuron in enumerate(selected):
+            tick = future_ticks[index % len(future_ticks)]
+            plan.setdefault(tick, []).append(neuron.address)
+        self.scheduled_faults.update(plan)
+        log_start = len(self.logs)
+        total = sum(len(addresses) for addresses in plan.values())
+        self.log_event(
+            "FAULT_PLAN",
+            f"Запланировано случайных отказов: {total}; такты {sorted(plan)}; seed={seed if seed is not None else 'random'}.",
+        )
+        if self.history:
+            self._update_current_snapshot(self.logs[log_start:])
+        return plan
+
+    def _apply_scheduled_faults(self, tick: int) -> None:
+        addresses = self.scheduled_faults.pop(tick, [])
+        for address in addresses:
+            neuron = self.get_neuron(address)
+            if neuron is None or not neuron.is_operational and neuron.state == NeuronState.FAULTY:
+                self.log_event("FAULT_SKIP", f"Плановый отказ {address} пропущен: узел уже неисправен.")
+                continue
+            active, status = neuron.toggle_fault()
+            if status == "pending":
+                req_id = neuron.current_request.id if neuron.current_request else "?"
+                self.log_event(
+                    "FAULT",
+                    f"Плановый случайный отказ {address} отложен до завершения заявки #{req_id}.",
+                )
+            elif active:
+                self.log_event("FAULT", f"Плановый случайный отказ: нейрон {address} отключен.")
+
     def step_simulation(self) -> None:
         if self.is_finished():
             return
 
         self.current_tick += 1
         cycle_logs_start = len(self.logs)
+
+        # Apply scheduled failures before routing.  Busy neurons receive a
+        # deferred fault and therefore finish their current request normally.
+        self._apply_scheduled_faults(self.current_tick)
 
         # 1. Ввод новых заявок
         new_injected = self.inject_initial_requests(self.current_tick)
@@ -602,6 +676,7 @@ class BaseArchitecture(abc.ABC):
         self.all_requests.clear()
         self.logs.clear()
         self.history.clear()
+        self.scheduled_faults.clear()
         self.reset_topology()
         self._record_snapshot([])
         self.log_event("SYS", "Сброс архитектуры к начальному состоянию.")

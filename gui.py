@@ -14,7 +14,8 @@ from PySide6.QtGui import QFont, QPainter, QPen, QColor, QBrush
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QGridLayout, QPushButton, QLabel, QSpinBox, QDoubleSpinBox, QComboBox,
-    QTextEdit, QSlider, QSplitter, QTabWidget
+    QTextEdit, QSlider, QSplitter, QTabWidget, QTableWidget, QTableWidgetItem,
+    QHeaderView, QAbstractItemView
 )
 
 from models import (
@@ -315,7 +316,7 @@ class AnalyticsLineChart(QWidget):
     def paintEvent(self, event) -> None:
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.fillRect(self.rect(), QColor("#171b20"))
+        painter.fillRect(self.rect(), QColor("#1a1a1a"))
         chart = self.rect().adjusted(52, 34, -22, -34)
         all_values = [value for _, values, _ in self.series for value in values]
         if not all_values or chart.width() <= 0 or chart.height() <= 0:
@@ -324,13 +325,13 @@ class AnalyticsLineChart(QWidget):
             return
 
         maximum = max(1.0, max(all_values))
-        painter.setPen(QPen(QColor("#30363d"), 1))
+        painter.setPen(QPen(QColor("#323842"), 1))
         for step in range(5):
             y = chart.bottom() - int(chart.height() * step / 4)
             painter.drawLine(chart.left(), y, chart.right(), y)
-            painter.setPen(QColor("#768390"))
+            painter.setPen(QColor("#90a4ae"))
             painter.drawText(4, y - 8, 42, 18, Qt.AlignRight, str(int(maximum * step / 4)))
-            painter.setPen(QPen(QColor("#30363d"), 1))
+            painter.setPen(QPen(QColor("#323842"), 1))
         painter.drawRect(chart)
 
         point_count = max((len(values) for _, values, _ in self.series), default=0)
@@ -357,7 +358,7 @@ class AnalyticsLineChart(QWidget):
             painter.drawText(legend_x, 18, 120, 16, Qt.AlignLeft, f"● {name}")
             legend_x += 118
         if self.labels:
-            painter.setPen(QColor("#768390"))
+            painter.setPen(QColor("#90a4ae"))
             painter.drawText(chart.left(), self.height() - 20, 120, 16, Qt.AlignLeft, self.labels[0])
             painter.drawText(chart.right() - 120, self.height() - 20, 120, 16, Qt.AlignRight, self.labels[-1])
 
@@ -377,7 +378,7 @@ class AnalyticsBarChart(QWidget):
     def paintEvent(self, event) -> None:
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.fillRect(self.rect(), QColor("#171b20"))
+        painter.fillRect(self.rect(), QColor("#1a1a1a"))
         chart = self.rect().adjusted(50, 22, -20, -46)
         if not self.values:
             painter.setPen(QColor("#8b949e"))
@@ -397,7 +398,7 @@ class AnalyticsBarChart(QWidget):
             painter.drawText(int(x), int(y) - 20, int(bar_width), 16, Qt.AlignHCenter, str(value))
             painter.setPen(QColor("#9aa6b2"))
             painter.drawText(int(x - 10), chart.bottom() + 8, int(bar_width + 20), 30, Qt.AlignHCenter, label)
-        painter.setPen(QPen(QColor("#30363d"), 1))
+        painter.setPen(QPen(QColor("#323842"), 1))
         painter.drawRect(chart)
 
 
@@ -405,10 +406,10 @@ class AnalyticsHeatmap(QWidget):
     """Current neuron state map backed by the detailed SQLite snapshots."""
 
     COLORS = {
-        "FAULTY": QColor("#8f2f3a"),
-        "BUSY": QColor("#006d77"),
-        "EXHAUSTED": QColor("#46515b"),
-        "FREE": QColor("#26313a"),
+        "FAULTY": QColor("#381b1d"),
+        "BUSY": QColor("#006064"),
+        "EXHAUSTED": QColor("#546e7a"),
+        "FREE": QColor("#21252b"),
     }
 
     def __init__(self, parent: Optional[QWidget] = None):
@@ -423,7 +424,7 @@ class AnalyticsHeatmap(QWidget):
     def paintEvent(self, event) -> None:
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.fillRect(self.rect(), QColor("#171b20"))
+        painter.fillRect(self.rect(), QColor("#1a1a1a"))
         if not self.neurons:
             painter.setPen(QColor("#8b949e"))
             painter.drawText(self.rect(), Qt.AlignCenter, "Нет состояния нейронов")
@@ -462,7 +463,7 @@ class AnalyticsHeatmap(QWidget):
 
 
 class AnalyticsPanel(QWidget):
-    """Dashboard for the live SQLite recorder."""
+    """Persistent experiment archive and charts for the whole SQLite history."""
 
     def __init__(self, recorder: AnalyticsRecorder, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -475,21 +476,29 @@ class AnalyticsPanel(QWidget):
         layout.setSpacing(8)
 
         header = QHBoxLayout()
-        self.lbl_run = QLabel("Запуск: —")
+        header.addWidget(QLabel("Запуск для анализа:"))
+        self.combo_run = QComboBox()
+        self.combo_run.currentIndexChanged.connect(self.refresh)
+        header.addWidget(self.combo_run, 2)
         self.lbl_path = QLabel(str(self.recorder.db_path))
-        self.lbl_path.setStyleSheet("color: #7d8a96; font-size: 8pt;")
-        header.addWidget(self.lbl_run)
-        header.addWidget(self.lbl_path, 1)
+        self.lbl_path.setStyleSheet("color: #90a4ae; font-size: 8pt;")
+        header.addWidget(self.lbl_path, 2)
         self.btn_refresh = QPushButton("Обновить")
         self.btn_refresh.clicked.connect(self.refresh)
         header.addWidget(self.btn_refresh)
         self.btn_export = QPushButton("Экспорт CSV")
         self.btn_export.clicked.connect(self._export_csv)
         header.addWidget(self.btn_export)
+        self.btn_report = QPushButton("Полный отчёт")
+        self.btn_report.clicked.connect(self._open_report)
+        header.addWidget(self.btn_report)
         layout.addLayout(header)
 
+        self.lbl_run = QLabel("Запуск: —")
+        self.lbl_run.setStyleSheet("color: #4fc3f7; font-weight: bold; padding: 2px;")
+        layout.addWidget(self.lbl_run)
         self.summary = QLabel()
-        self.summary.setStyleSheet("color: #b9c6d0; padding: 4px;")
+        self.summary.setStyleSheet("color: #dcdcdc; padding: 4px;")
         self.summary.setWordWrap(True)
         layout.addWidget(self.summary)
 
@@ -497,29 +506,63 @@ class AnalyticsPanel(QWidget):
         self.metrics_chart = AnalyticsLineChart()
         self.events_chart = AnalyticsBarChart()
         self.heatmap = AnalyticsHeatmap()
+        self.archive_table = QTableWidget(0, 10)
+        self.archive_table.setHorizontalHeaderLabels([
+            "Run", "Архитектура", "Режим отказов", "Заявки", "Готово", "Отказ",
+            "Успех", "Среднее T", "P95 T", "Сбоев",
+        ])
+        self.archive_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.archive_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.archive_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.archive_table.horizontalHeader().setStretchLastSection(True)
         self.tabs.addTab(self.metrics_chart, "Метрики по тактам")
         self.tabs.addTab(self.events_chart, "События")
         self.tabs.addTab(self.heatmap, "Нейроны")
+        self.tabs.addTab(self.archive_table, "Архив экспериментов")
         layout.addWidget(self.tabs, 1)
 
         self.lbl_status = QLabel()
-        self.lbl_status.setStyleSheet("color: #7d8a96; font-size: 8pt;")
+        self.lbl_status.setStyleSheet("color: #90a4ae; font-size: 8pt;")
         layout.addWidget(self.lbl_status)
 
+    def _selected_run_id(self) -> Optional[int]:
+        value = self.combo_run.currentData()
+        return int(value) if value is not None else self.recorder.run_id
+
     def refresh(self) -> None:
-        summary = self.recorder.get_run_summary()
+        runs = self.recorder.list_runs()
+        selected = self._selected_run_id()
+        self.combo_run.blockSignals(True)
+        self.combo_run.clear()
+        for run in runs:
+            label = run.get("experiment_name") or run.get("architecture") or "run"
+            self.combo_run.addItem(f"#{run['run_id']} · {label}", run["run_id"])
+        if selected is not None:
+            index = self.combo_run.findData(selected)
+            if index >= 0:
+                self.combo_run.setCurrentIndex(index)
+        self.combo_run.blockSignals(False)
+
+        run_id = self._selected_run_id()
+        summary = self.recorder.get_run_summary(run_id)
         if not summary:
             self.lbl_run.setText("Запуск: —")
             self.summary.setText("Нет записанных данных")
             return
+        metric = summary.get("current_metrics", {})
         self.lbl_run.setText(f"Запуск #{summary['run_id']} · {summary['architecture']}")
         self.summary.setText(
-            f"Снимков: {summary['ticks']} · событий: {summary['events']} · "
-            f"нейронов: {summary['neurons']} · заявок в истории: {summary['requests']} · "
-            f"завершено: {summary['completed']} · отказов: {summary['rejected']}"
+            f"Заявки: {metric.get('total_generated', summary['requests'])} · "
+            f"готово: {metric.get('completed', summary['completed'])} · "
+            f"отказано: {metric.get('rejected', summary['rejected'])} · "
+            f"успех: {float(metric.get('success_rate', 0.0)):.1f}% · "
+            f"среднее время: {metric.get('mean_duration_ticks', '—')} т. · "
+            f"P95: {metric.get('p95_duration_ticks', '—')} т. · "
+            f"сбоев: {metric.get('unique_faulty_neurons', 0)} · "
+            f"заявок через сбойные узлы: {metric.get('completed_with_faults', 0)}"
         )
 
-        metrics = self.recorder.get_tick_metrics()
+        metrics = self.recorder.get_tick_metrics(run_id)
         labels = [f"#{row['history_index']} · t{row['tick']}" for row in metrics]
         self.metrics_chart.set_data(
             labels,
@@ -530,16 +573,43 @@ class AnalyticsPanel(QWidget):
                 ("отказано", [row.get("rejected_count") or 0 for row in metrics], "#ef5350"),
             ],
         )
-        self.events_chart.set_data(self.recorder.get_event_counts())
-        self.heatmap.set_data(self.recorder.get_neuron_heatmap())
-        self.lbl_status.setText("Данные обновлены из SQLite")
+        self.events_chart.set_data(self.recorder.get_event_counts(run_id))
+        self.heatmap.set_data(self.recorder.get_neuron_heatmap(run_id))
+        self._refresh_archive(runs)
+        self.lbl_status.setText(f"Архив содержит {len(runs)} запусков; данные загружены из SQLite")
+
+    def _refresh_archive(self, runs: List[Dict[str, Any]]) -> None:
+        self.archive_table.setRowCount(len(runs))
+        for row_index, run in enumerate(runs):
+            values = [
+                run.get("run_id"),
+                run.get("experiment_name") or run.get("architecture"),
+                run.get("failure_mode") or "none",
+                run.get("total_generated") or 0,
+                run.get("completed") or 0,
+                run.get("rejected") or 0,
+                f"{float(run.get('success_rate') or 0):.1f}%",
+                run.get("mean_duration_ticks") if run.get("mean_duration_ticks") is not None else "—",
+                run.get("p95_duration_ticks") if run.get("p95_duration_ticks") is not None else "—",
+                run.get("unique_faulty_neurons") or 0,
+            ]
+            for column, value in enumerate(values):
+                self.archive_table.setItem(row_index, column, QTableWidgetItem(str(value)))
 
     def _export_csv(self) -> None:
-        if self.recorder.run_id is None:
+        run_id = self._selected_run_id()
+        if run_id is None:
             return
-        output = self.recorder.db_path.parent / "csv" / f"run_{self.recorder.run_id}"
-        paths = self.recorder.export_csv(output)
+        output = self.recorder.db_path.parent / "csv" / f"run_{run_id}"
+        paths = self.recorder.export_csv(output, run_id)
         self.lbl_status.setText(f"CSV сохранён: {output} ({len(paths)} файлов)")
+
+    def _open_report(self) -> None:
+        from analytics_report import generate_report
+        import webbrowser
+        path = generate_report(self.recorder.db_path)
+        webbrowser.open(path.resolve().as_uri())
+        self.lbl_status.setText(f"Открыт полный отчёт: {path}")
 
 
 class MainWindow(QMainWindow):
@@ -563,7 +633,10 @@ class MainWindow(QMainWindow):
         )
         self.ctrl = SimulationController(self.arch, speed_ms=400)
         self.analytics = AnalyticsRecorder(Path(__file__).with_name("analytics") / "simulation.sqlite")
-        self.analytics.start_run(self.arch)
+        self.analytics.start_run(
+            self.arch,
+            metadata={"experiment_name": "toroidal_grid:live", "failure_mode": "none"},
+        )
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._on_timer_tick)
@@ -580,16 +653,47 @@ class MainWindow(QMainWindow):
         seed = self.spin_fault_seed.value()
         count = self.spin_faults.value()
         probability = self.spin_fault_probability.value()
-        self.ctrl.randomize_faults(
-            count=count,
-            probability=probability,
-            seed=None if seed < 0 else seed,
-        )
-        self.analytics.record_action(
-            self.arch,
-            "random_faults",
-            {"count": count, "probability": probability, "seed": None if seed < 0 else seed},
-        )
+        seed_value = None if seed < 0 else seed
+        mode = self.combo_fault_mode.currentData()
+        if mode == "scheduled":
+            plan = self.ctrl.schedule_random_faults(
+                count=count,
+                probability=probability,
+                seed=seed_value,
+            )
+            self.analytics.record_action(
+                self.arch,
+                "scheduled_fault_plan",
+                {
+                    "count": count,
+                    "probability": probability,
+                    "seed": seed_value,
+                    "plan": {str(tick): [list(address) for address in addresses] for tick, addresses in plan.items()},
+                },
+            )
+            self.analytics.update_run_metadata(
+                failure_mode="scheduled",
+                failure_target_count=count,
+                failure_probability=probability,
+                failure_seed=seed_value,
+            )
+        else:
+            self.ctrl.randomize_faults(
+                count=count,
+                probability=probability,
+                seed=seed_value,
+            )
+            self.analytics.record_action(
+                self.arch,
+                "random_faults_now",
+                {"count": count, "probability": probability, "seed": seed_value},
+            )
+            self.analytics.update_run_metadata(
+                failure_mode="immediate",
+                failure_target_count=count,
+                failure_probability=probability,
+                failure_seed=seed_value,
+            )
         self._update_logs()
         self.refresh_all()
 
@@ -712,7 +816,12 @@ class MainWindow(QMainWindow):
         self.spin_fault_seed.setToolTip("-1 — новый случайный seed при каждом запуске")
         params_bar.addWidget(self.spin_fault_seed)
         self.btn_random_faults = QPushButton("Сгенерировать")
-        self.btn_random_faults.setToolTip("Случайно отключить нейроны; занятые получат отложенный сбой")
+        self.combo_fault_mode = QComboBox()
+        self.combo_fault_mode.addItem("Сразу", "immediate")
+        self.combo_fault_mode.addItem("Распределить по времени", "scheduled")
+        self.combo_fault_mode.setToolTip("Сразу отключить выбранные узлы или запланировать их отказы на будущие такты")
+        params_bar.addWidget(self.combo_fault_mode)
+        self.btn_random_faults.setToolTip("Случайно отключить нейроны сейчас или распределить отказы по будущим тактам")
         self.btn_random_faults.clicked.connect(self._randomize_faults)
         params_bar.addWidget(self.btn_random_faults)
 
@@ -1003,7 +1112,14 @@ class MainWindow(QMainWindow):
         if self.timer.isActive():
             self.timer.stop()
         self.btn_play.setText("Пуск")
-        self.analytics.start_run(self.arch)
+        mode = self.combo_fault_mode.currentData() if hasattr(self, "combo_fault_mode") else "none"
+        self.analytics.start_run(
+            self.arch,
+            metadata={
+                "experiment_name": f"{self.arch.get_topology_info().get('type', 'run')}:live",
+                "failure_mode": mode,
+            },
+        )
         self.refresh_all()
 
     def refresh_all(self) -> None:

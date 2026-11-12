@@ -123,7 +123,11 @@ def generate(db_path: str | Path, *, replace: bool = False) -> list[dict[str, in
         for name, factory in _factories():
             # Baseline: normal routing with no injected faults.
             baseline = factory(3, 8, True)
-            run_id = recorder.start_run(baseline, label=f"{name}:baseline")
+            run_id = recorder.start_run(
+                baseline,
+                label=f"{name}:baseline",
+                metadata={"failure_mode": "none"},
+            )
             steps = _record_until_finished(SimulationController(baseline), recorder)
             results.append({"run_id": run_id, "scenario": f"{name}:baseline", "steps": steps})
 
@@ -131,7 +135,11 @@ def generate(db_path: str | Path, *, replace: bool = False) -> list[dict[str, in
             # allowed to finish with the recorded failure visible in the DB.
             faulty = factory(3, 8, False)
             controller = SimulationController(faulty)
-            run_id = recorder.start_run(faulty, label=f"{name}:fault")
+            run_id = recorder.start_run(
+                faulty,
+                label=f"{name}:fault",
+                metadata={"failure_mode": "immediate", "failure_target_count": 1, "failure_probability": 1.0, "failure_seed": 20261112},
+            )
             controller.step_forward()
             recorder.record_snapshot(faulty)
             address = _fault_address(faulty)
@@ -146,7 +154,11 @@ def generate(db_path: str | Path, *, replace: bool = False) -> list[dict[str, in
             # fault and continue.  Both branches remain queryable by index.
             branched = factory(4, 6, True)
             controller = SimulationController(branched)
-            run_id = recorder.start_run(branched, label=f"{name}:branch")
+            run_id = recorder.start_run(
+                branched,
+                label=f"{name}:branch",
+                metadata={"failure_mode": "immediate", "failure_target_count": 1, "failure_probability": 1.0},
+            )
             for _ in range(5):
                 controller.step_forward()
                 recorder.record_snapshot(branched)
@@ -161,6 +173,25 @@ def generate(db_path: str | Path, *, replace: bool = False) -> list[dict[str, in
                 recorder.record_snapshot(branched)
             steps = 5 + _record_until_finished(controller, recorder)
             results.append({"run_id": run_id, "scenario": f"{name}:branch", "steps": steps})
+
+            # Scheduled run: exactly three nodes are selected now, but their
+            # failures are injected on future ticks while the pipeline runs.
+            scheduled = factory(3, 8, True)
+            controller = SimulationController(scheduled)
+            run_id = recorder.start_run(
+                scheduled,
+                label=f"{name}:scheduled",
+                metadata={"failure_mode": "scheduled", "failure_target_count": 3, "failure_probability": 1.0, "failure_seed": 20261112},
+            )
+            plan = controller.schedule_random_faults(count=3, probability=1.0, seed=20261112)
+            recorder.record_action(
+                scheduled,
+                "scheduled_fault_plan",
+                {"count": 3, "probability": 1.0, "seed": 20261112, "plan": {str(tick): [list(address) for address in addresses] for tick, addresses in plan.items()}},
+            )
+            recorder.record_snapshot(scheduled)
+            steps = _record_until_finished(controller, recorder)
+            results.append({"run_id": run_id, "scenario": f"{name}:scheduled", "steps": steps})
     return results
 
 
