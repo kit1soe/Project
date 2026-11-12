@@ -99,6 +99,11 @@ class SimulationController:
         self.notify("tick", self.arch.current_tick)
         return res
 
+    def randomize_faults(self, count: int = 1, probability: float = 1.0, seed: Optional[int] = None) -> list[str]:
+        changed = self.arch.randomize_faults(count=count, probability=probability, seed=seed)
+        self.notify("tick", self.arch.current_tick)
+        return changed
+
     def set_speed(self, speed_ms: int) -> None:
         self.speed_ms = speed_ms
 

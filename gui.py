@@ -330,6 +330,11 @@ class MainWindow(QMainWindow):
         self._apply_styles()
         self.refresh_all()
 
+    def _randomize_faults(self) -> None:
+        changed = self.ctrl.randomize_faults(count=self.spin_faults.value())
+        self._update_logs()
+        self.refresh_all()
+
     def _init_ui(self) -> None:
         central = QWidget(self)
         self.setCentralWidget(central)
@@ -426,6 +431,17 @@ class MainWindow(QMainWindow):
         self.combo_mode.addItem("Идти вниз при смещении", False)
         self.combo_mode.currentIndexChanged.connect(self._on_routing_mode_changed)
         params_bar.addWidget(self.combo_mode)
+
+        params_bar.addWidget(QLabel("Случайные сбои:"))
+        self.spin_faults = QSpinBox()
+        self.spin_faults.setRange(1, 100)
+        self.spin_faults.setValue(1)
+        self.spin_faults.setToolTip("Количество случайно выбранных нейронов")
+        params_bar.addWidget(self.spin_faults)
+        self.btn_random_faults = QPushButton("Сгенерировать")
+        self.btn_random_faults.setToolTip("Случайно отключить нейроны; занятые получат отложенный сбой")
+        self.btn_random_faults.clicked.connect(self._randomize_faults)
+        params_bar.addWidget(self.btn_random_faults)
 
         params_bar.addStretch(1)
         main_layout.addLayout(params_bar)

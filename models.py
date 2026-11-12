@@ -15,6 +15,7 @@
 from __future__ import annotations
 import abc
 import copy
+import random
 from dataclasses import dataclass
 from enum import Enum
 import math
@@ -448,6 +449,25 @@ class BaseArchitecture(abc.ABC):
         if self.history:
             self._update_current_snapshot()
         return is_fault_active
+
+    def randomize_faults(self, count: int = 1, probability: float = 1.0, seed: Optional[int] = None) -> List[str]:
+        """Inject random faults; busy neurons receive a deferred pending_fault."""
+        rng = random.Random(seed)
+        candidates = [n for n in self.all_neurons() if n.is_operational and not n.pending_fault]
+        rng.shuffle(candidates)
+        selected = [n for n in candidates[:max(0, count)] if rng.random() <= max(0.0, min(1.0, probability))]
+        changed: List[str] = []
+        for neuron in selected:
+            active, status = neuron.toggle_fault()
+            if status == "pending":
+                self.log_event("FAULT", f"Случайный сбой {neuron.address} отложен до завершения текущей заявки.")
+            elif active:
+                self.log_event("FAULT", f"Случайный сбой: нейрон {neuron.address} отключен.")
+            if status != "cancelled_pending":
+                changed.append(neuron.address)
+        if changed:
+            self._update_current_snapshot()
+        return changed
 
     def step_simulation(self) -> None:
         if self.is_finished():

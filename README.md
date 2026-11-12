@@ -31,3 +31,14 @@ python main.py
 ```bash
 python test_simulation.py
 ```
+
+## Аналитика
+
+Логи и снимки симуляции можно выгрузить в SQLite:
+
+```python
+from analytics_db import export_architecture
+run_id = export_architecture(architecture, "analytics.sqlite")
+```
+
+Таблицы `runs`, `ticks`, `events` и `requests` подходят для построения статистики и графиков. Для быстрой сводки событий используйте `python analytics_db.py analytics.sqlite --run 1`.
