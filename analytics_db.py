@@ -30,6 +30,9 @@ CREATE TABLE IF NOT EXISTS runs (
     total_initial_requests INTEGER,
     single_use INTEGER,
     generation_ticks_json TEXT,
+    arrival_mode TEXT DEFAULT 'deterministic',
+    arrival_rate REAL,
+    arrival_seed INTEGER,
     app_version TEXT,
     experiment_name TEXT,
     failure_mode TEXT,
@@ -243,6 +246,9 @@ def _connect(path: str | Path) -> sqlite3.Connection:
         "failure_target_count": "INTEGER DEFAULT 0",
         "failure_probability": "REAL DEFAULT 1.0",
         "failure_seed": "INTEGER",
+        "arrival_mode": "TEXT DEFAULT 'deterministic'",
+        "arrival_rate": "REAL",
+        "arrival_seed": "INTEGER",
     }.items():
         if column not in existing_columns:
             connection.execute(f"ALTER TABLE runs ADD COLUMN {column} {declaration}")
@@ -396,9 +402,10 @@ class AnalyticsRecorder:
             """
             INSERT INTO runs(
                 created_at, architecture, topology_json, q_required, routing_mode,
-                total_initial_requests, single_use, generation_ticks_json, app_version,
+                total_initial_requests, single_use, generation_ticks_json,
+                arrival_mode, arrival_rate, arrival_seed, app_version,
                 experiment_name, failure_mode, failure_target_count, failure_probability, failure_seed
-            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """,
             (
                 _now(),
@@ -409,6 +416,9 @@ class AnalyticsRecorder:
                 getattr(architecture, "total_initial_requests", None),
                 int(bool(getattr(architecture, "single_use", False))),
                 _json(getattr(architecture, "generation_ticks", None)),
+                getattr(architecture, "arrival_mode", "deterministic"),
+                getattr(architecture, "arrival_rate", None),
+                getattr(architecture, "arrival_seed", None),
                 "ns-adc-analytics-v2",
                 metadata.get("experiment_name", architecture_name),
                 metadata.get("failure_mode", "none"),
@@ -834,6 +844,9 @@ class AnalyticsRecorder:
             "failure_target_count": run["failure_target_count"] or 0,
             "failure_probability": run["failure_probability"] if run["failure_probability"] is not None else 1.0,
             "failure_seed": run["failure_seed"],
+            "arrival_mode": run["arrival_mode"] or "deterministic",
+            "arrival_rate": run["arrival_rate"],
+            "arrival_seed": run["arrival_seed"],
             "current_metrics": dict(metric) if metric else {},
         }
 
@@ -843,6 +856,7 @@ class AnalyticsRecorder:
             """
             SELECT r.run_id,r.created_at,r.architecture,r.experiment_name,r.failure_mode,
                    r.failure_target_count,r.failure_probability,r.failure_seed,
+                   r.arrival_mode,r.arrival_rate,r.arrival_seed,
                    m.measured_tick,m.total_generated,m.completed,m.rejected,m.success_rate,
                    m.mean_duration_ticks,m.p95_duration_ticks,m.fault_event_count,
                    m.unique_faulty_neurons,m.completed_with_faults

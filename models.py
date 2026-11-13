@@ -54,6 +54,46 @@ class PlayState(Enum):
     FINISHED = "Завершено"
 
 
+class ArrivalMode(str, Enum):
+    """Способ поступления заявок во входной слой."""
+
+    DETERMINISTIC = "deterministic"
+    POISSON = "poisson"
+
+
+@dataclass(frozen=True)
+class PoissonRequestGenerator:
+    """Генератор дискретного расписания заявок из пуассоновского потока.
+
+    ``rate`` задаётся в заявках на такт. Межприходящие интервалы сначала
+    выбираются как экспоненциальные, а затем округляются вверх до целого
+    такта. Поэтому несколько заявок могут прийти на одном такте, как и в
+    настоящем пуассоновском процессе.
+    """
+
+    rate: float
+    seed: Optional[int] = None
+
+    def __post_init__(self) -> None:
+        if self.rate <= 0:
+            raise ValueError("Интенсивность пуассоновского потока должна быть больше нуля")
+
+    def schedule(self, total_requests: int, start_tick: int = 1) -> Dict[int, int]:
+        if total_requests < 0:
+            raise ValueError("Количество заявок не может быть отрицательным")
+        if start_tick < 1:
+            raise ValueError("Первый такт генерации должен быть положительным")
+
+        rng = random.Random(self.seed)
+        schedule: Dict[int, int] = {}
+        elapsed = float(start_tick - 1)
+        for _ in range(total_requests):
+            elapsed += rng.expovariate(self.rate)
+            tick = max(start_tick, math.ceil(elapsed))
+            schedule[tick] = schedule.get(tick, 0) + 1
+        return schedule
+
+
 class Request:
     PALETTE = [
         "#00BCD4", "#4CAF50", "#FF9800", "#E91E63",
@@ -235,6 +275,9 @@ class SimulationSnapshot:
     new_logs: List[Dict[str, str]]
     next_input_idx: int
     scheduled_faults: Dict[int, List[Tuple[int, int]]] = field(default_factory=dict)
+    arrival_mode: str = ArrivalMode.DETERMINISTIC.value
+    arrival_rate: float = 0.5
+    arrival_seed: Optional[int] = None
 
 
 class BaseArchitecture(abc.ABC):
@@ -256,6 +299,11 @@ class BaseArchitecture(abc.ABC):
         self.single_use: bool = single_use
         self.return_to_origin: bool = return_to_origin
         self.generation_ticks: Optional[List[int]] = list(generation_ticks) if generation_ticks is not None else None
+        self.arrival_mode: str = ArrivalMode.DETERMINISTIC.value
+        self.arrival_rate: float = 0.5
+        self.arrival_seed: Optional[int] = None
+        self.poisson_schedule: Dict[int, int] = {}
+        self.record_history: bool = True
 
         self.current_tick: int = 0
         self.total_generated: int = 0
@@ -278,10 +326,101 @@ class BaseArchitecture(abc.ABC):
         self.log_event("SYS", f"Режим маршрутизации: {mode_str}.")
 
     def set_generation_ticks(self, ticks: Optional[List[int]]) -> None:
-        """Установка заданных тактов генерации заявок (при None - генерация по нечетным тактам)."""
-        self.generation_ticks = list(ticks) if ticks is not None else None
+        """Установка детерминированного расписания заявок.
+
+        При ``None`` сохраняется прежний режим генерации по нечётным тактам.
+        Изменение расписания начинает новую ветку истории, чтобы уже
+        записанные снимки не смешивались с новым сценарием.
+        """
+        self.truncate_future()
+        self.arrival_mode = ArrivalMode.DETERMINISTIC.value
+        self.poisson_schedule = {}
+        self.generation_ticks = (
+            sorted({int(tick) for tick in ticks if int(tick) >= 1})
+            if ticks is not None
+            else None
+        )
+        self.arrival_seed = None
         ticks_str = f"такты {self.generation_ticks}" if self.generation_ticks is not None else "нечетные такты"
+        log_start = len(self.logs)
         self.log_event("SYS", f"Расписание генерации заявок: {ticks_str}.")
+        if self.history:
+            self._update_current_snapshot(self.logs[log_start:])
+
+    def set_arrival_process(
+        self,
+        mode: str | ArrivalMode = ArrivalMode.DETERMINISTIC,
+        rate: float = 0.5,
+        seed: Optional[int] = None,
+        generation_ticks: Optional[List[int]] = None,
+    ) -> None:
+        """Настроить детерминированный или пуассоновский поток заявок.
+
+        Для пуассоновского режима расписание строится заранее по seed. Это
+        делает результаты воспроизводимыми и сохраняет одинаковую генерацию
+        при перемотке Memento-истории.
+        """
+        normalized = mode.value if isinstance(mode, ArrivalMode) else str(mode).strip().lower()
+        aliases = {
+            "deterministic": ArrivalMode.DETERMINISTIC.value,
+            "fixed": ArrivalMode.DETERMINISTIC.value,
+            "по расписанию": ArrivalMode.DETERMINISTIC.value,
+            "poisson": ArrivalMode.POISSON.value,
+            "пуассоновский": ArrivalMode.POISSON.value,
+        }
+        normalized = aliases.get(normalized, normalized)
+        if normalized not in {item.value for item in ArrivalMode}:
+            raise ValueError(f"Неизвестный режим генерации заявок: {mode}")
+
+        self.truncate_future()
+        log_start = len(self.logs)
+        self.arrival_mode = normalized
+        self.arrival_seed = seed
+        if generation_ticks is not None:
+            self.generation_ticks = sorted({int(tick) for tick in generation_ticks if int(tick) >= 1})
+
+        if normalized == ArrivalMode.POISSON.value:
+            generator = PoissonRequestGenerator(float(rate), seed=seed)
+            self.arrival_rate = float(rate)
+            self.poisson_schedule = generator.schedule(self.total_initial_requests)
+            scheduled_ticks = sorted(self.poisson_schedule)
+            preview = scheduled_ticks[:8]
+            preview_text = ", ".join(map(str, preview))
+            if len(scheduled_ticks) > len(preview):
+                preview_text += ", …"
+            self.log_event(
+                "SYS",
+                f"Пуассоновский поток заявок: λ={self.arrival_rate:g}, seed={seed if seed is not None else 'random'}, "
+                f"заявок {self.total_initial_requests}, тактов с приходом {len(scheduled_ticks)} "
+                f"(первые: {preview_text or 'нет'}).",
+            )
+        else:
+            self.arrival_rate = float(rate)
+            self.poisson_schedule = {}
+            ticks_str = f"такты {self.generation_ticks}" if self.generation_ticks is not None else "нечетные такты"
+            self.log_event("SYS", f"Детерминированный поток заявок: {ticks_str}.")
+
+        if self.history:
+            self._update_current_snapshot(self.logs[log_start:])
+
+    def get_arrival_config(self) -> Dict[str, Any]:
+        """Вернуть сериализуемую конфигурацию генератора заявок."""
+        return {
+            "mode": self.arrival_mode,
+            "rate": self.arrival_rate,
+            "seed": self.arrival_seed,
+            "generation_ticks": list(self.generation_ticks) if self.generation_ticks is not None else None,
+            "schedule": dict(self.poisson_schedule),
+        }
+
+    def set_history_enabled(self, enabled: bool) -> None:
+        """Отключить дорогие снимки для headless/batch-прогонов.
+
+        Начальный снимок сохраняется, поэтому обычная машина времени остаётся
+        совместимой, а пакетные эксперименты не расходуют память на копию всей
+        истории после каждого такта.
+        """
+        self.record_history = bool(enabled)
 
     @property
     def input_columns_count(self) -> int:
@@ -321,25 +460,30 @@ class BaseArchitecture(abc.ABC):
         if self.next_input_idx >= self.total_initial_requests:
             return []
 
-        should_generate = (
-            (tick in self.generation_ticks)
-            if self.generation_ticks is not None
-            else (tick % 2 == 1)
-        )
+        if self.arrival_mode == ArrivalMode.POISSON.value:
+            requested_count = self.poisson_schedule.get(tick, 0)
+        else:
+            should_generate = (
+                (tick in self.generation_ticks)
+                if self.generation_ticks is not None
+                else (tick % 2 == 1)
+            )
+            requested_count = 1 if should_generate else 0
 
-        if should_generate:
+        requests: List[Request] = []
+        for _ in range(min(requested_count, self.total_initial_requests - self.next_input_idx)):
             col = self.next_input_idx % self.input_columns_count
             req_id = self.next_input_idx + 1
             self.next_input_idx += 1
-
-            req = Request(
-                request_id=req_id,
-                q_required=self.q_required,
-                input_neuron_index=(0, col),
-                created_at_tick=tick
+            requests.append(
+                Request(
+                    request_id=req_id,
+                    q_required=self.q_required,
+                    input_neuron_index=(0, col),
+                    created_at_tick=tick,
+                )
             )
-            return [req]
-        return []
+        return requests
 
     def log_event(self, event_type: str, message: str) -> None:
         self.logs.append({
@@ -376,7 +520,12 @@ class BaseArchitecture(abc.ABC):
             new_logs=list(new_logs),
             next_input_idx=self.next_input_idx,
             scheduled_faults=copy.deepcopy(self.scheduled_faults),
+            arrival_mode=self.arrival_mode,
+            arrival_rate=self.arrival_rate,
+            arrival_seed=self.arrival_seed,
         )
+        if not self.record_history and self.history:
+            return
         self.history.append(snapshot)
         self.current_history_index = len(self.history) - 1
 
@@ -403,6 +552,9 @@ class BaseArchitecture(abc.ABC):
             new_logs=snapshot_logs,
             next_input_idx=self.next_input_idx,
             scheduled_faults=copy.deepcopy(self.scheduled_faults),
+            arrival_mode=self.arrival_mode,
+            arrival_rate=self.arrival_rate,
+            arrival_seed=self.arrival_seed,
         )
 
     def _restore_from_snapshot(self, s: SimulationSnapshot) -> None:
@@ -413,6 +565,9 @@ class BaseArchitecture(abc.ABC):
         self.next_input_idx = s.next_input_idx
         self.scheduled_faults = copy.deepcopy(getattr(s, "scheduled_faults", {}))
         self.all_requests = copy.deepcopy(s.requests)
+        self.arrival_mode = getattr(s, "arrival_mode", self.arrival_mode)
+        self.arrival_rate = getattr(s, "arrival_rate", self.arrival_rate)
+        self.arrival_seed = getattr(s, "arrival_seed", self.arrival_seed)
 
         is_dict = isinstance(s.neurons_state, dict)
         for n in self.all_neurons():
@@ -660,7 +815,8 @@ class BaseArchitecture(abc.ABC):
         while not self.is_finished() and max_ticks > 0:
             self.step_forward()
             max_ticks -= 1
-        self.go_to_history_tick(len(self.history) - 1)
+        if self.record_history:
+            self.go_to_history_tick(len(self.history) - 1)
 
     def go_to_history_tick(self, idx: int) -> None:
         if 0 <= idx < len(self.history):
@@ -1705,10 +1861,20 @@ class ChordalFunnel8Architecture(BaseArchitecture):
         }
 
 
-# Выделенный MVC-контроллер вынесен в отдельный файл controller.py согласно паттерну MVC
-from controller import SimulationController
-
-
 class SimulationEngine(ToroidalGridArchitecture):
     """Алиас для обратной совместимости."""
     pass
+
+
+def __getattr__(name: str) -> Any:
+    """Лениво предоставить старый импорт ``models.SimulationController``.
+
+    Раньше модуль импортировал controller.py безусловно внизу файла. При
+    прямом импорте ``controller`` это создавало циклический импорт и ломало
+    headless-скрипты. Ленивый алиас сохраняет обратную совместимость и
+    устраняет цикл.
+    """
+    if name == "SimulationController":
+        from controller import SimulationController
+        return SimulationController
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

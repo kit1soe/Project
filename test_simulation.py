@@ -24,13 +24,86 @@ from models import (
     Star8Architecture, HoneycombPipelineArchitecture, SymmetricStar8Architecture,
     Funnel8Architecture, ChordalFunnel8Architecture,
     SimulationEngine,
-    NeuronState, RequestStatus, PlayState, Request, Neuron
+    NeuronState, RequestStatus, PlayState, Request, Neuron,
+    ArrivalMode, PoissonRequestGenerator,
 )
 from controller import SimulationController
 from analytics_db import AnalyticsRecorder
+from batch_experiments import run_batch, run_single
 
 
 class TestSimulation(unittest.TestCase):
+
+    def test_poisson_request_generator_is_reproducible(self):
+        """Одинаковый seed даёт одинаковое дискретное расписание заявок."""
+        first = PoissonRequestGenerator(rate=0.5, seed=42).schedule(20)
+        second = PoissonRequestGenerator(rate=0.5, seed=42).schedule(20)
+        self.assertEqual(first, second)
+        self.assertEqual(sum(first.values()), 20)
+        self.assertTrue(all(tick >= 1 for tick in first))
+
+    def test_poisson_arrival_mode_generates_requested_count(self):
+        """Пуассоновский режим сохраняет число заявок и виден в конфигурации."""
+        arch = ToroidalGridArchitecture(rows=6, cols=6, q_required=2, total_initial_requests=8)
+        arch.set_arrival_process(ArrivalMode.POISSON, rate=0.75, seed=7)
+        self.assertEqual(arch.get_arrival_config()["mode"], "poisson")
+        self.assertEqual(sum(arch.poisson_schedule.values()), 8)
+
+        controller = SimulationController(arch)
+        for _ in range(max(arch.poisson_schedule) + arch.q_required * 3 + 8):
+            if arch.is_finished():
+                break
+            controller.step_forward()
+        self.assertEqual(arch.total_generated, 8)
+        self.assertTrue(arch.is_finished())
+
+    def test_headless_mode_does_not_build_history(self):
+        """Пакетный режим сохраняет только начальный снимок."""
+        arch = ToroidalGridArchitecture(rows=3, cols=3, q_required=2, total_initial_requests=2)
+        arch.set_history_enabled(False)
+        controller = SimulationController(arch)
+        controller.fast_forward(max_ticks=100)
+        self.assertEqual(len(arch.history), 1)
+        self.assertTrue(arch.is_finished())
+
+    def test_batch_experiment_exports_metrics(self):
+        """Headless-прогон возвращает метрики и создаёт CSV/HTML."""
+        with TemporaryDirectory() as tmp:
+            rows, csv_path, html_path = run_batch(
+                output_dir=Path(tmp),
+                request_counts=[4],
+                q_values=[2],
+                arrival_rates=[0.8],
+                failure_counts=[0, 1],
+                topologies=["torus"],
+                seed=11,
+                max_ticks=500,
+            )
+            self.assertEqual(len(rows), 2)
+            self.assertTrue(csv_path.exists())
+            self.assertTrue(html_path.exists())
+            self.assertTrue(all("rejection_probability" in row for row in rows))
+            self.assertTrue(all(int(row["generated"]) == 4 for row in rows))
+
+    def test_fast_forward_reports_timeout(self):
+        """Ограниченный fast-forward не маскируется под завершённую симуляцию."""
+        arch = ToroidalGridArchitecture(rows=6, cols=6, q_required=4, total_initial_requests=6)
+        controller = SimulationController(arch)
+        controller.fast_forward(max_ticks=1)
+        self.assertFalse(arch.is_finished())
+        self.assertEqual(controller.state, PlayState.PAUSED)
+
+    def test_analytics_persists_arrival_configuration(self):
+        """Параметры пуассоновского потока доступны в сводке запуска."""
+        with TemporaryDirectory() as tmp:
+            arch = ToroidalGridArchitecture(rows=3, cols=3, q_required=2, total_initial_requests=2)
+            arch.set_arrival_process(ArrivalMode.POISSON, rate=0.75, seed=19)
+            with AnalyticsRecorder(Path(tmp) / "analytics.sqlite") as recorder:
+                run_id = recorder.start_run(arch)
+                summary = recorder.get_run_summary(run_id)
+            self.assertEqual(summary["arrival_mode"], "poisson")
+            self.assertEqual(summary["arrival_rate"], 0.75)
+            self.assertEqual(summary["arrival_seed"], 19)
 
     def test_base_architecture_is_abstract(self):
         """Проверка, что BaseArchitecture абстрактен и не может быть создан напрямую."""

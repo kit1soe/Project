@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 from typing import Any, Callable, Dict, List, Optional
-from models import BaseArchitecture, PlayState, RequestStatus
+from models import ArrivalMode, BaseArchitecture, PlayState, RequestStatus
 
 
 class SimulationController:
@@ -79,7 +79,7 @@ class SimulationController:
 
     def fast_forward(self, max_ticks: int = 500) -> None:
         self.arch.fast_forward_to_end(max_ticks=max_ticks)
-        self.state = PlayState.FINISHED
+        self.state = PlayState.FINISHED if self.arch.is_finished() else PlayState.PAUSED
         self.notify("state_change", self.state)
         self.notify("tick", self.arch.current_tick)
 
@@ -120,6 +120,22 @@ class SimulationController:
     def set_generation_ticks(self, ticks: Optional[List[int]]) -> None:
         """Установка заданных тактов генерации заявок."""
         self.arch.set_generation_ticks(ticks)
+
+    def set_arrival_process(
+        self,
+        mode: str | ArrivalMode,
+        rate: float = 0.5,
+        seed: Optional[int] = None,
+        generation_ticks: Optional[List[int]] = None,
+    ) -> None:
+        """Настройка детерминированного или пуассоновского потока заявок."""
+        self.arch.set_arrival_process(
+            mode=mode,
+            rate=rate,
+            seed=seed,
+            generation_ticks=generation_ticks,
+        )
+        self.notify("tick", self.arch.current_tick)
 
     def get_kpi(self) -> Dict[str, Any]:
         total = self.arch.total_generated

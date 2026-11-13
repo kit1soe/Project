@@ -622,6 +622,9 @@ class MainWindow(QMainWindow):
         self.q_required: int = 4
         self.total_requests: int = 6
         self.return_to_origin: bool = True
+        self.arrival_mode: str = "deterministic"
+        self.arrival_rate: float = 0.5
+        self.arrival_seed: Optional[int] = 0
 
         # Базовая архитектура по умолчанию: Тороидальная матрица 6x6
         self.arch: BaseArchitecture = ToroidalGridArchitecture(
@@ -794,6 +797,37 @@ class MainWindow(QMainWindow):
         self.combo_mode.currentIndexChanged.connect(self._on_routing_mode_changed)
         params_bar.addWidget(self.combo_mode)
 
+        arrival_bar = QHBoxLayout()
+        arrival_bar.setSpacing(8)
+        arrival_bar.addWidget(QLabel("Поток заявок:"))
+        self.combo_arrival_mode = QComboBox()
+        self.combo_arrival_mode.addItem("По расписанию", "deterministic")
+        self.combo_arrival_mode.addItem("Пуассоновский", "poisson")
+        self.combo_arrival_mode.currentIndexChanged.connect(self._on_arrival_mode_changed)
+        arrival_bar.addWidget(self.combo_arrival_mode)
+
+        arrival_bar.addWidget(QLabel("λ:"))
+        self.spin_arrival_rate = QDoubleSpinBox()
+        self.spin_arrival_rate.setRange(0.01, 10.0)
+        self.spin_arrival_rate.setSingleStep(0.05)
+        self.spin_arrival_rate.setDecimals(3)
+        self.spin_arrival_rate.setValue(self.arrival_rate)
+        self.spin_arrival_rate.setToolTip("Среднее число заявок на один такт")
+        self.spin_arrival_rate.valueChanged.connect(self._on_arrival_rate_changed)
+        arrival_bar.addWidget(self.spin_arrival_rate)
+
+        arrival_bar.addWidget(QLabel("Seed потока:"))
+        self.spin_arrival_seed = QSpinBox()
+        self.spin_arrival_seed.setRange(-1, 2_147_483_647)
+        self.spin_arrival_seed.setValue(self.arrival_seed)
+        self.spin_arrival_seed.setSpecialValueText("случайный")
+        self.spin_arrival_seed.setToolTip("-1 — новый случайный поток при каждом запуске")
+        self.spin_arrival_seed.valueChanged.connect(self._on_arrival_seed_changed)
+        arrival_bar.addWidget(self.spin_arrival_seed)
+
+        arrival_bar.addWidget(QLabel("Для пуассона λ — заявок/такт"))
+        arrival_bar.addStretch(1)
+
         params_bar.addWidget(QLabel("Случайные сбои:"))
         self.spin_faults = QSpinBox()
         self.spin_faults.setRange(1, 100)
@@ -827,6 +861,7 @@ class MainWindow(QMainWindow):
 
         params_bar.addStretch(1)
         main_layout.addLayout(params_bar)
+        main_layout.addLayout(arrival_bar)
 
         # 3. Рабочая область: Графический канвас слева, статистика и лог справа
         splitter = QSplitter(Qt.Horizontal)
@@ -1057,6 +1092,7 @@ class MainWindow(QMainWindow):
                 total_initial_requests=self.total_requests
             )
 
+        self._apply_arrival_settings()
         self.ctrl.set_architecture(self.arch)
         self.canvas.rebuild_canvas()
         self.refresh_all()
@@ -1082,6 +1118,31 @@ class MainWindow(QMainWindow):
     def _on_n_changed(self, val: int) -> None:
         self.total_requests = val
         self._on_topo_changed(self.combo_topo.currentIndex())
+
+    def _apply_arrival_settings(self) -> None:
+        """Перенести выбранный режим потока в текущую архитектуру."""
+        if not hasattr(self, "combo_arrival_mode"):
+            return
+        self.arrival_mode = str(self.combo_arrival_mode.currentData() or "deterministic")
+        self.arrival_rate = float(self.spin_arrival_rate.value())
+        seed = self.spin_arrival_seed.value()
+        self.arrival_seed = None if seed < 0 else int(seed)
+        self.arch.set_arrival_process(
+            mode=self.arrival_mode,
+            rate=self.arrival_rate,
+            seed=self.arrival_seed,
+        )
+
+    def _on_arrival_mode_changed(self, index: int) -> None:
+        self._on_topo_changed(self.combo_topo.currentIndex())
+
+    def _on_arrival_rate_changed(self, value: float) -> None:
+        if hasattr(self, "combo_topo"):
+            self._on_topo_changed(self.combo_topo.currentIndex())
+
+    def _on_arrival_seed_changed(self, value: int) -> None:
+        if hasattr(self, "combo_topo"):
+            self._on_topo_changed(self.combo_topo.currentIndex())
 
     def _on_slider_moved(self, val: int) -> None:
         if val != self.arch.current_history_index:
@@ -1118,6 +1179,9 @@ class MainWindow(QMainWindow):
             metadata={
                 "experiment_name": f"{self.arch.get_topology_info().get('type', 'run')}:live",
                 "failure_mode": mode,
+                "arrival_mode": self.arrival_mode if hasattr(self, "arrival_mode") else "deterministic",
+                "arrival_rate": self.arrival_rate if hasattr(self, "arrival_rate") else 0.5,
+                "arrival_seed": self.arrival_seed if hasattr(self, "arrival_seed") else None,
             },
         )
         self.refresh_all()
